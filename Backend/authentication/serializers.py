@@ -1,11 +1,12 @@
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework import serializers
-from .models import User
+from .models import  User
 
 class UserSerializers(serializers.ModelSerializer): 
+    
     class Meta:
         model = User
-        fields = ['id','username','email','password','profile_img']
+        fields = '__all__'
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -17,3 +18,6 @@ class UserSerializers(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+    
+class CSRFTokenSerializer(serializers.Serializer):
+    csrfToken = serializers.CharField()
