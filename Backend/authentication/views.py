@@ -19,7 +19,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 
-
 class RegisterView(APIView):
     def post(self, request):
         # Check if a user with the same username or email already exists
@@ -32,23 +31,31 @@ class RegisterView(APIView):
         role = request.data.get('role', 'user')
 
         # Create a dictionary with user data, including the role
-        user_data = {
+        registration_data = {
             'username': request.data['username'],
             'email': request.data['email'],
             'password': request.data['password'],
             'role': role,
         }
 
+        # Add is_active as False
+        registration_data['is_active'] = False
+
         # Serialize and validate the user data
-        serializer = UserSerializers(data=user_data)
+        serializer = UserSerializers(data=registration_data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data.get('username')
+        email = serializer.validated_data.get('email')
 
         if serializer.is_valid():
             user = serializer.save()
+            request.session['registration_data'] = serializer.validated_data
 
             # Generate and send an email verification code (OTP)
             otp = get_random_string(length=6, allowed_chars='1234567890')
             expiry = datetime.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
             request.session['otp'] = otp
+            print(request.session['otp'])
             request.session['otp_expiry'] = expiry.strftime('%Y-%m-%d %H:%M:%S')
             email = user.email
 
@@ -62,8 +69,56 @@ class RegisterView(APIView):
             )
 
             return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
+            
         else:
             return Response({'error': 'Data validation failed. Please check your input.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserRegOTPVerificationView(APIView):
+    def post(self, request):
+        # Extract OTP entered by the user
+        entered_otp = request.data.get('otp')
+        print(entered_otp)
+
+        # Retrieve the stored OTP from the session
+        stored_otp = request.session.get('otp')
+        print(stored_otp)
+
+        if entered_otp == stored_otp:
+            # OTP is valid, proceed with user registration
+
+            # Extract user registration data from the session or request
+            registration_data = request.session.get('registration_data')
+            email = registration_data['email']
+            password = registration_data['password']
+            username = registration_data['username']
+
+            print(registration_data)
+
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Activate the user
+            user.is_active = True
+            user.save()
+
+            # Additional fields can be set here, such as first_name, last_name, etc.
+            # user.first_name = registration_data['first_name']
+            # user.last_name = registration_data['last_name']
+
+            # Save the user
+            user.save()
+
+            # Remove OTP and registration data from the session
+            del request.session['otp']
+            del request.session['registration_data']
+
+            return Response({'message': 'Registration successful'})
+        else:
+            # OTP is invalid
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -92,6 +147,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         response.data['user_role'] = user_role  # Set the user role
 
         return response
+    
+
 
 
 
@@ -100,10 +157,10 @@ class LogoutView(APIView):
     def post(self, request):
         try:
             refresh_token = request.data["refresh_token"]
-            token = RefreshToken(refresh_token)
+            # token = RefreshToken(refresh_token)
 
             # Add the token to the blacklist
-            token.blacklist()
+            # token.blacklist()
 
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
@@ -119,14 +176,6 @@ class AccessTokenValidationView(APIView):
     
 
 
-from django.middleware.csrf import get_token
-from .serializers import CSRFTokenSerializer
-
-class CSRFTokenView(APIView):
-    def get(self, request):
-        csrf_token = get_token(request)
-        serializer = CSRFTokenSerializer({'csrfToken': csrf_token})
-        return Response(serializer.data)
 
 
 

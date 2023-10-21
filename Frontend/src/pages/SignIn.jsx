@@ -34,6 +34,8 @@ function SignIn() {
 
         // Store user data in localStorage or a state management solution (e.g., Redux)
         localStorage.setItem('user', JSON.stringify(response.data));
+        localStorage.setItem('acess', JSON.stringify(response.data.access));
+        localStorage.setItem('refresh', JSON.stringify(response.data.refresh));
 
         // Redirect to the home page
         navigateTo('/');

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -8,9 +9,12 @@ function SignUp() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user', // Default role is 'user'
+    role: 'user',
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -19,52 +23,93 @@ function SignUp() {
     });
   };
 
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+  // Show the "Please wait" alert
 
-    // Check if the password and confirm password match
+    showPleaseWaitAlert();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match");
-      return;
-    }
-    const csrfToken = await getCSRFToken();
-    async function getCSRFToken() {
-      try {
-        const response = await fetch('http://localhost:8000/get-csrf-token/');
-        if (!response.ok) {
-          throw new Error('Failed to fetch CSRF token');
-        }
-        const data = await response.json();
-        return data.csrfToken;
-      } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
-        return null; // Return a default value or handle the error as needed
-      }
+      Swal.fire({
+        icon: 'error',
+        title: 'Password Mismatch',
+        text: 'Passwords do not match. Please check your input.',
+      });
+      return; // Stop execution if passwords don't match
     }
 
-    // Send a POST request to your sign-up endpoint on the backend
-    if (csrfToken) {
-    axios.post(' http://localhost:8000/signup/', formData)
-      .then(response => {
-        // Handle a successful response (e.g., show a success message, redirect, etc.)
-        console.log('Sign-up successful', response.data);
-
-        // After a successful sign-up, redirect to the home page with the user's role
-        navigate('/', { state: { userRole: formData.role } });
+    axios.post('http://127.0.0.1:8000/signup/', formData, {headers:{'Content-Type' : 'application/json'}, withCredentials : true })
+      .then((response) => {
+        
+        // Handle the successful response here
+        console.log('Otp sent successfully:', response.data);
+        const email = formData.email;
+        closePleaseWaitAlert();
+        showSuccessAlert(email);
+        
+        // Navigate to the OTP verification page
+        navigate('/OTPVerification');
       })
-      .catch(error => {
-        // Handle errors (e.g., show an error message to the user)
-        console.error('Sign-up error', error);
+      .catch((error) => {
+        // Handle any errors here
+        console.error('Registration failed:', error);
+        closePleaseWaitAlert();
+        let errorMessage = 'Registration failed. Please try again later.'; // Default error message
+
+  // Check if the error response contains a custom error message
+        if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error; // Use the custom error message from the response
+        }
+
+        showErrorAlert(errorMessage);
       });
   };
-}
+
+
+  const showPleaseWaitAlert = () => {
+    setIsLoading(true);
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Please Wait',
+      text: ' we are verifiying your details',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      onBeforeOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  };
+
+  // Function to close the "Please wait" alert
+  const closePleaseWaitAlert = () => {
+    setIsLoading(false);
+    Swal.close();
+  };
+
+  // Function to show a success alert
+  const showSuccessAlert = (email) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Enter your OTP',
+      text: `OTP sent to your ${email} successfully.`,
+    });
+  };
+
+  // Function to show an error alert
+  const showErrorAlert = (errorMessage) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: errorMessage,
+    });
+  };
+
 
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="w-full max-w-md">
         <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}" />
           <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}" />
           <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
           <div className="mb-4">
@@ -95,6 +140,7 @@ function SignUp() {
               onChange={handleChange}
             />
           </div>
+          
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
               Password
@@ -139,14 +185,14 @@ function SignUp() {
               <option value="admin">Admin</option>
             </select>
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Sign Up
-            </button>
-          </div>
+          <div className="text-center">
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
+          >
+            Sign Up
+          </button>
+        </div>
         </form>
         <p className="text-center">
           Already have an account?{' '}
