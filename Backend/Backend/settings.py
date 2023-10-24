@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
     'authentication',
+    'users',
+    'services',
 ]
 
 
@@ -194,6 +196,7 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'authentication.User'
 
+
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_HOST_USER='nedungadanharif@gmail.com'
@@ -206,3 +209,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     # Add other allowed origins as needed
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

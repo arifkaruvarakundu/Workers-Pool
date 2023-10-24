@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 function SignIn() {
   const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ function SignIn() {
   });
 
   const navigateTo = useNavigate();
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,8 +37,9 @@ function SignIn() {
 
         // Store user data in localStorage or a state management solution (e.g., Redux)
         localStorage.setItem('user', JSON.stringify(response.data));
-        localStorage.setItem('acess', JSON.stringify(response.data.access));
+        localStorage.setItem('access', JSON.stringify(response.data.access));
         localStorage.setItem('refresh', JSON.stringify(response.data.refresh));
+        localStorage.setItem('user_role', JSON.stringify(response.data.user_role));
 
         // Redirect to the home page
         navigateTo('/');
@@ -80,12 +84,13 @@ function SignIn() {
             />
           </div>
           <div className="flex items-center justify-between">
-            <button
+            <button 
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
               Sign In
             </button>
+            <ToastContainer />
           </div>
         </form>
         <p className="text-center">

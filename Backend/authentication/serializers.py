@@ -19,5 +19,7 @@ class UserSerializers(serializers.ModelSerializer):
         instance.save()
         return instance
     
+class PasswordUpdateSerializer(serializers.Serializer):
+    new_password = serializers.CharField()
 class CSRFTokenSerializer(serializers.Serializer):
     csrfToken = serializers.CharField()

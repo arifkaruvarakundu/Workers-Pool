@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User 
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from .serializers import UserSerializers
+from .serializers import PasswordUpdateSerializer
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, timedelta
 from django.utils.crypto import get_random_string
@@ -174,6 +175,18 @@ class AccessTokenValidationView(APIView):
         # If the request reaches this point, the access token is valid
         return Response({'message': 'Access token is valid'}, status=status.HTTP_200_OK)
     
+
+
+class PasswordUpdateView(APIView):
+    def post(self, request):
+        serializer = PasswordUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            new_password = serializer.validated_data['new_password']
+            user = request.user  # You can use the authenticated user here
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

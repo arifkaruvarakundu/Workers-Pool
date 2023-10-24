@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { isAuthenticated } from '../isAuthenticated';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import img from '../../assets/img.png'
 
 function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const navigateTo = useNavigate();
-
-  const valid=isAuthenticated()
-  console.log(valid)
+  const dropdownRef = useRef(null);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
+
+
   const handleLogout = async () => {
     try {
       // Retrieve the refresh_token from local storage
@@ -34,8 +35,9 @@ function Navbar() {
         // The user is logged out, you can update your state or redirect to the login page
         // For example, if using React Router:
         localStorage.removeItem('user');
-        localStorage.removeItem('acess');
+        localStorage.removeItem('access');
         localStorage.removeItem('refresh');
+        localStorage.removeItem('user_role');
         navigateTo('/');
       }
     } catch (error) {
@@ -43,15 +45,10 @@ function Navbar() {
     }
   };
   
+  
+    const role = localStorage.getItem('user_role');
+    console.log(role)
 
-  const handleDropdownClick = () => {
-    // Toggle the dropdown when the user avatar is clicked
-    setShowDropdown(!showDropdown);
-  };
-
-  const closeDropdown = () => {
-    setShowDropdown(false);
-  };
 
   return (
     <div className="bg-gray-800 p-4 w-full">
@@ -74,23 +71,30 @@ function Navbar() {
           </div>
           {isAuthenticated() ? (
             <div className="relative group">
-              <button className="text-white cursor-pointer group-hover:underline" onClick={handleDropdownClick}>
-                <img src="#" alt="User" className="w-10 h-10 rounded-full" />
+              <button className="text-white cursor-pointer group-hover:underline" onClick={toggleDropdown}>
+                <img src={img} alt="User" className="w-10 h-10 rounded-full" />
               </button>
               {showDropdown && (
-                <div className="absolute bg-white right-0 mt-2 border border-gray-200 p-2 rounded shadow z-10" onClick={closeDropdown}>
-                  <Link to="/profile" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
-                    Profile
-                  </Link>
+                <div className="absolute bg-white right-0 mt-2 border border-gray-200 p-2 rounded shadow z-10">
+                  {role === 'admin' ? (
+                    <Link to="/profile_user" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link to="/profile_user" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
+                      Profile
+                    </Link>
+                  )}
                   <button onClick={handleLogout} className="block py-2 px-4 text-gray-800 hover:text-blue-700">
                     Logout
                   </button>
                 </div>
               )}
+
             </div>
           ) : (
             <Link to="/signin" className="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded">
-              Sign In / Sign Up
+              SignIn / SignUp
             </Link>
           )}
         </div>
