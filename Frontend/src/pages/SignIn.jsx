@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import {setIsAuthenticated} from '../Redux/authslice'
+import { useDispatch,useSelector } from 'react-redux';
 
 function SignIn() {
   const [formData, setFormData] = useState({
@@ -12,6 +14,8 @@ function SignIn() {
 
   const navigateTo = useNavigate();
   
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,28 +28,26 @@ function SignIn() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Send a POST request to your sign-in endpoint on the backend
     axios
       .post('http://localhost:8000/token/', formData)
       .then((response) => {
-        // Handle a successful response
+        
         console.log('Sign-in successful', response.data);
 
-        // Extract user role and profile image URL from the response
-        const userRole = response.data.role; // Assuming your response includes 'role'
-        const userProfileImage = response.data.profileImage; // Replace with the actual field for profile image
+        const userRole = response.data.role; 
+        const userProfileImage = response.data.profileImage; 
 
-        // Store user data in localStorage or a state management solution (e.g., Redux)
         localStorage.setItem('user', JSON.stringify(response.data));
         localStorage.setItem('access', JSON.stringify(response.data.access));
         localStorage.setItem('refresh', JSON.stringify(response.data.refresh));
         localStorage.setItem('user_role', JSON.stringify(response.data.user_role));
 
-        // Redirect to the home page
+        dispatch(setIsAuthenticated());
+
         navigateTo('/');
       })
       .catch((error) => {
-        // Handle errors (e.g., show an error message to the user)
+        
         console.error('Sign-in error', error);
       });
   };

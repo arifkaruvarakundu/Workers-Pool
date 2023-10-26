@@ -1,27 +1,24 @@
-import './App.css'
-import React, { useState } from 'react';
-import { BrowserRouter as Router,Routes, Route } from 'react-router-dom'
-import Loader from './components/Loader'
-import Admin_Page from './pages/Admin_Page'
-import Home from './pages/Home'
-import SignIn from './pages/SignIn' 
-import SignUp from './pages/SignUp'
-import OTPVerification from './pages/otpverification'
-import UserManagement from './pages/usermanagement'
-import ServiceManagement from './pages/service_management'
-import Profile from './pages/Profile_user';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Loader from './components/Loader';
+import Admin_Page from './pages/Admin_Page';
+import Home from './pages/Home';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
+import OTPVerification from './pages/otpverification';
+import UserManagement from './pages/usermanagement';
+import ServiceManagement from './pages/service_management';
 import Profile_user from './pages/Profile_user';
+import { Provider } from 'react-redux';
+import store from './Redux/store';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Set to true when the user is authenticated
-  const [userRole, setUserRole] = useState('user'); // Replace with the actual user's role
-
   return (
-    <>
+    <Provider store={store}>
       <Router>
         <Routes>
-          <Route path="/" element={<Home isAuthenticated={isAuthenticated} userRole={userRole} />} />
-          <Route path="/signin" element={<SignIn setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="/SignUp" element={<SignUp />} />
           <Route path="/OTPVerification" element={<OTPVerification />} />
           <Route path="/Loader" element={<Loader />} />
@@ -31,8 +28,8 @@ function App() {
           <Route path="/profile_user" element={<Profile_user />} />
         </Routes>
       </Router>
-    </>
-  )
+    </Provider>
+  );
 }
 
-export default App
+export default App;
