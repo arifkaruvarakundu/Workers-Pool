@@ -35,7 +35,7 @@ function OTPVerification() {
         setIsLoading(false);
 
         // Redirect to the registration success page or another appropriate page
-        navigate('/workersHome');
+        navigate('/signin');
       })
       .catch((error) => {
         // Handle any errors here

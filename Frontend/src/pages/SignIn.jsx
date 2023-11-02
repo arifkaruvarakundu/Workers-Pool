@@ -38,9 +38,9 @@ function SignIn() {
         const userProfileImage = response.data.profileImage; 
 
         localStorage.setItem('user', JSON.stringify(response.data));
-        localStorage.setItem('access', JSON.stringify(response.data.access));
-        localStorage.setItem('refresh', JSON.stringify(response.data.refresh));
-        localStorage.setItem('user_role', JSON.stringify(response.data.user_role));
+        localStorage.setItem('access', response.data.access);
+        localStorage.setItem('refresh', response.data.refresh);
+        localStorage.setItem('user_role', response.data.user_role);
 
         dispatch(setIsAuthenticated());
 

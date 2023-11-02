@@ -18,33 +18,26 @@ function Navbar() {
   
 
   const toggleDropdown = () => {
-    console.log(role)
     setShowDropdown(!showDropdown);
-    console.log(role)
-
   };
 
 
   const handleLogout = async () => {
     try {
-      // Retrieve the refresh_token from local storage
+      
       const refresh_token=localStorage.getItem('refresh');
   
-      // Check if refresh_token is present in local storage
       if (!refresh_token) {
         console.error('Refresh token not found in local storage');
         return;
       }
   
       const response = await axios.post('http://localhost:8000/logout/', {
-        refresh_token: refresh_token, // Include the refresh_token in the request data
+        refresh_token: refresh_token, 
       });
   
       if (response.status === 205) {
-        // The user is logged out, you can update your state or redirect to the login page
-        // For example, if using React Router:
-        
-
+       
         localStorage.removeItem('user');
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
@@ -52,26 +45,27 @@ function Navbar() {
         dispatch(setNotAuthenticated());
         navigateTo('/');
       }
-    } catch (error) {
+    } catch (error) {   
       console.error('Logout error:', error);
     }
   };
-  
-  
-    useEffect(()=>{
-      const value = localStorage.getItem('user_role');
-      setRole(value)
-      
-    },[])
 
+  useEffect(() => {
+    const value = localStorage.getItem('user_role')?.trim();
+    if (value) {
+      setRole(value);
+    }
+  }, []);
+  
+  
 
   return (
     <div className="bg-gray-800 p-4 w-full">
       <div className="container">
         <div className="flex justify-between items-center">
           <img src={logo} alt="Logo" className="w-16 h-16" />
-          <div className="space-x-4">
-            <Link to="/services" className="text-white hover:text-gray-300">
+          <div className="space-x-16">
+            <Link to="/" className="text-white hover:text-gray-300">
               Home
             </Link>
             <Link to="/services" className="text-white hover:text-gray-300">
@@ -84,15 +78,16 @@ function Navbar() {
               Contact
             </Link>
           </div>
-          {isAuthenticated ? (
+          {isAuthenticated && role ? (
             <div className="relative group">
               <button className="text-white cursor-pointer group-hover:underline" onClick={toggleDropdown}>
                 <img src={img} alt="User" className="w-10 h-10 rounded-full" />
               </button>
               {showDropdown && (
                 <div className="absolute bg-white right-0 mt-2 border border-gray-200 p-2 rounded shadow z-10">
+                  
                   {role === "admin" ? (
-                    <Link to="/profile_user" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
+                    <Link to="/Admin_Page" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
                       Dashboard
                     </Link>
                   ) : (

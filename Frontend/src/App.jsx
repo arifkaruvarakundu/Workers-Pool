@@ -5,12 +5,14 @@ import Admin_Page from './pages/Admin_Page';
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
-import OTPVerification from './pages/otpverification';
+import OTPVerification from './pages/OTPVerification';
 import UserManagement from './pages/usermanagement';
 import ServiceManagement from './pages/service_management';
 import Profile_user from './pages/Profile_user';
 import { Provider } from 'react-redux';
 import store from './Redux/store';
+import Add_details from './pages/add_details';
+import Services from './pages/services';
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
           <Route path="/users_workers" element={<UserManagement />} />
           <Route path="/service_management" element={<ServiceManagement />} />
           <Route path="/profile_user" element={<Profile_user />} />
+          <Route path="/add_details" element={<Add_details />} />
+          <Route path="/services" element={<Services />} />
         </Routes>
       </Router>
     </Provider>

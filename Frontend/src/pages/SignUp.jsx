@@ -182,7 +182,6 @@ function SignUp() {
             >
               <option value="user">User</option>
               <option value="worker">Worker</option>
-              <option value="admin">Admin</option>
             </select>
           </div>
           <div className="text-center">

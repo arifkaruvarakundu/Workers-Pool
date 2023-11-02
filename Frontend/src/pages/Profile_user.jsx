@@ -3,6 +3,7 @@ import ChangePasswordModal from './change_pass';
 import { useDispatch, useSelector } from 'react-redux';
 import { openPasswordModal, closePasswordModal } from '../Redux/passwordModalSlice';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const Profile_user = () => {
   const [image, setImage] = useState(null);
@@ -43,6 +44,7 @@ const Profile_user = () => {
       }
     }
   };
+  const userRole = JSON.parse(localStorage.getItem('user')).user_role;
 
   return (
     <div className="bg-gradient-to-b from-blue-300 to-blue-600 min-h-screen p-4 flex items-center justify-center">
@@ -76,17 +78,21 @@ const Profile_user = () => {
           </button>
 
           <ChangePasswordModal isOpen={isChangePasswordModalOpen} onRequestClose={handleClosePasswordModal} />
+          <Link to= "/add_details">
           <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
-            Edit Details & Address
+            Add/Edit Details & Address
           </button>
+          </Link>
         </div>
         <div className="mt-4 text-center">
           <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
             Show Work Log
           </button>
-          <button className="bg-blue-500 hover-bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
-            Show Bookings
-          </button>
+          {userRole === 'worker' && (
+            <button className="bg-blue-500 hover-bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
+              Show Bookings
+            </button>
+          )}
         </div>
       </div>
     </div>

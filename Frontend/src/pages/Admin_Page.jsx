@@ -28,7 +28,7 @@ function Admin_Page() {
             </Link>
           </li>
           <li className="mb-4">
-            <Link to="/homepage" className="block text-blue-400 hover:text-blue-200">
+            <Link to="/" className="block text-blue-400 hover:text-blue-200">
               Homepage
             </Link>
           </li>
