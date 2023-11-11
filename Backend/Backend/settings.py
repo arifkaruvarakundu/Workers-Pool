@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'authentication',
     'users',
     'services',
+    'crispy_forms',
 ]
 
 
@@ -206,9 +207,23 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    # Add other allowed origins as needed
+    "http://127.0.0.1:5173",
+    
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:5173'
 ]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# stripe settings
+
+STRIPE_PUBLIC_KEY = "pk_test_51OA4b6SIwD41cwvpknynEl2HlEb9ILiuu7uvMfaBd2SE64R2tp3DphbWxMuEvAeREcdpbBtlzTR0Vu5xgIBOrLJ800xqzRCT9y"
+STRIPE_SECRET_KEY = "sk_test_51OA4b6SIwD41cwvpyz7Ka39uUb8Dk75DOlOtSbUXIUYyzo1Tq7tJYNXwNLVqhM6pizCWCwkXFNkzdM7UH7TTjm1q00w6hV0v2g"
+
+
+
+
+
+BASE_URL = 'http://127.0.0.1:5173'

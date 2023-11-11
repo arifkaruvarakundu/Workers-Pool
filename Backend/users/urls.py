@@ -1,10 +1,14 @@
 from django.urls import path
-from .views import  UserList,UserDetail,BlockUnblockView
+from .views import  UserList,UserDetailsView,BlockUnblockView,UserDetailsCreateView,WorkersByServiceView,WorkerDetail
 
 
 urlpatterns = [
-    path('users/',UserList.as_view()),
-    path('userdetails/', UserDetail.as_view()),
+    path('users/',UserList.as_view()),  
+    path('userdetails/', UserDetailsView.as_view()),
     path('user/<int:pk>/block_unblock/', BlockUnblockView.as_view(), name='block-unblock-user'),
-    
+    path('add_details/', UserDetailsCreateView.as_view(), name='user-details-create'),
+    path('service/<int:service_id>/workers/', WorkersByServiceView.as_view(), name='workers_by_service'),
+    path('worker/<int:pk>/', WorkerDetail.as_view(), name='worker-detail'),
+
+
 ]

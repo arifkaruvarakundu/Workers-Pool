@@ -19,7 +19,12 @@ class UserSerializers(serializers.ModelSerializer):
         instance.save()
         return instance
     
-class PasswordUpdateSerializer(serializers.Serializer):
-    new_password = serializers.CharField()
-class CSRFTokenSerializer(serializers.Serializer):
-    csrfToken = serializers.CharField()
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    """
+    Serializer for password change endpoint.
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    
