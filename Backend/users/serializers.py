@@ -6,8 +6,8 @@ from authentication.serializers import UserSerializers
 
 
 class UserDetailsSerializer(serializers.ModelSerializer):
-    services = ServiceSerializers(many=True, read_only=True)
-    user_id=UserSerializers(read_only=True)
+    services = ServiceSerializers(many=True)
+    user_id=UserSerializers()
 
 
     class Meta:

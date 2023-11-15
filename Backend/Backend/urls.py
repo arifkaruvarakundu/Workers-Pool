@@ -24,6 +24,8 @@ urlpatterns = [
     path('',include('authentication.urls')),
     path('',include('users.urls')),
     path('',include('services.urls')),
+    path('', include('chat.urls')),
+    # path('',include('notifications.urls')),
     
 ]
 if settings.DEBUG:

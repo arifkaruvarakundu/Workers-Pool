@@ -11,10 +11,11 @@ urlpatterns = [
     path('assign_appointment_status', Assign_book_status.as_view(), name='assign-appointment-status'),
     path('view_new_appointment', View_New_Appointment.as_view(), name='view-new-appointment'),
     path('view_confirm_appointment', View_Confirm_Appointment.as_view(), name='view-confirm-appointment'),
-    path('all_appointment', All_Appointment.as_view(), name='all-appointment'),
+    path('all_appointment/', All_Appointment.as_view(), name='all-appointment'),
     path('book_appointment', Book_appointment.as_view(), name='book-appointment'),
-    path('delete_appointment', delete_appointment.as_view(), name='delete-appointment'),
+    path('delete_appointment/<int:id>/', DeleteAppointment.as_view(), name='delete-appointment'),
     path('checkout/', StripeCheckoutView.as_view(), name='checkout'),
+    path('webhooks',MyWebhookView.as_view())
 
     
 ]

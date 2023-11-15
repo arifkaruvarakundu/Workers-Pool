@@ -36,6 +36,8 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # Set to a value that suits your applicat
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     'users',
     'services',
     'crispy_forms',
+    'chat',
 ]
 
 
@@ -64,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
 ]
+
 
 ROOT_URLCONF = 'Backend.urls'
 
@@ -84,6 +88,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Backend.wsgi.application'
+
+ASGI_APPLICATION = 'Backend.asgi.application'
 
 
 # Database
@@ -208,11 +214,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
+     "http://localhost:8000", 
+     
     
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:5173'
-]
+    'http://127.0.0.1:5173',
+    "http://localhost:8000", ]
+    
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -223,7 +232,32 @@ STRIPE_PUBLIC_KEY = "pk_test_51OA4b6SIwD41cwvpknynEl2HlEb9ILiuu7uvMfaBd2SE64R2tp
 STRIPE_SECRET_KEY = "sk_test_51OA4b6SIwD41cwvpyz7Ka39uUb8Dk75DOlOtSbUXIUYyzo1Tq7tJYNXwNLVqhM6pizCWCwkXFNkzdM7UH7TTjm1q00w6hV0v2g"
 
 
-
-
-
 BASE_URL = 'http://127.0.0.1:5173'
+
+
+
+ASGI_APPLICATION = 'Backend.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [REDIS_URL],
+#         },
+#     },
+# }
+
+
+CHANNELS_ALLOWED_HOSTS = ['http://127.0.0.1:5173']
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+
+]

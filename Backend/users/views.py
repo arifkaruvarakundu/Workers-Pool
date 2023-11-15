@@ -15,8 +15,17 @@ class UserList(generics.ListCreateAPIView):
     serializer_class = UserSerializers
 
 class UserDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializers
+    queryset = UserDetails.objects.all()
+    serializer_class = UserDetailsSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')  # Assuming your URL pattern includes 'pk' as the user_id
+        try:
+            queryset = UserDetails.objects.get(user_id=user_id)
+            serializer = self.get_serializer(queryset)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserDetails.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class BlockUnblockView(generics.UpdateAPIView):

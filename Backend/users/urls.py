@@ -4,7 +4,7 @@ from .views import  UserList,UserDetailsView,BlockUnblockView,UserDetailsCreateV
 
 urlpatterns = [
     path('users/',UserList.as_view()),  
-    path('userdetails/', UserDetailsView.as_view()),
+     path('userdetails/<int:pk>/', UserDetailsView.as_view(), name='user-details'),
     path('user/<int:pk>/block_unblock/', BlockUnblockView.as_view(), name='block-unblock-user'),
     path('add_details/', UserDetailsCreateView.as_view(), name='user-details-create'),
     path('service/<int:service_id>/workers/', WorkersByServiceView.as_view(), name='workers_by_service'),

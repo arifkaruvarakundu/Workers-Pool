@@ -59,9 +59,9 @@ class View_Confirm_Appointment(APIView):
 
 class All_Appointment(APIView):
     serializer_class = AppointmentSerializer
-    permission_classes = IsAuthenticated, IsAdminUser
 
     def get(self, request):
+        print("&&&&&&&&&&&&%$$$$$$$$$$$$",request.data)
         q = Appointment.objects.all()
         serializer = self.serializer_class(q, many=True).data
         return Response(serializer,status=status.HTTP_200_OK)
@@ -94,30 +94,29 @@ class Book_appointment(APIView):
     def post(self, request):
         customer_id = request.data.get('user_id')
         customer = User.objects.get(id=customer_id)
-        print("#########@@@@@@@@@@@@@^^^^^", customer)
         service_id = request.data.get("serviceId")
         service = Services.objects.get(id=service_id)
-        print("#########@@@@@@@@@@@@@^^^^^", service)
         short_description = request.data.get('short_description')
-        date_str = request.data.get('selectedDate')
+        date = request.data.get('selectedDate')
         status_str = request.data.get('status', "waiting_for_payment")
+        
 
-        try:
-            date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
-        except ValueError:
-            return Response(
-                {"date1": ["Invalid date format. Use YYYY-MM-DDTHH:mm:ss.SSSZ format."]},
-                status=http_status.HTTP_400_BAD_REQUEST
-            )
-
-        # Ensure that the provided status_str is a valid choice
+        # try:
+        #     date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
+        #     print("$$$$$$$$$$$$$$$$")
+        # except ValueError:
+        #     return Response(
+        #         {"date1": ["Invalid date format. Use YYYY-MM-DDTHH:mm:ss.SSSZ format."]},
+        #         status=http_status.HTTP_400_BAD_REQUEST
+        #     )
+        
         if status_str not in [choice[0] for choice in Appointment._meta.get_field('status').choices]:
             return Response(
                 {"status": ["Invalid value for 'status'."]},
                 status=http_status.HTTP_400_BAD_REQUEST
             )
 
-        # Use the status value from the model choices
+        
         status = self.status_mapping[status_str]
 
         appointment = Appointment.objects.create(
@@ -128,7 +127,8 @@ class Book_appointment(APIView):
             date1=date,
         )
 
-        print("%$$$$$$$$$********", appointment)
+
+        
 
         return Response({"message": "Appointment created successfully"}, status=status)
 
@@ -170,23 +170,19 @@ class Book_appointment(APIView):
 
 #         return Response({'client_secret': test_payment_intent.client_secret}, status=status.HTTP_200_OK)
 
+from django.shortcuts import get_object_or_404
+class DeleteAppointment(APIView):
+    def put(self, request, id):
 
-class delete_appointment(APIView):
+        print("&&&&&&&&&&&&&&&",request.data)
+        
+        appointment = get_object_or_404(Appointment,id=id)
 
-    permission_classes = [IsAuthenticated, ]
-    
-    def post(self, request):
-        user = User.objects.get(username=request.user)
-        customer =User.objects.get(user=user).id
-        apt_id = request.data.get('id')
-        apt = Appointment.objects.filter(customer=customer, id=apt_id)
-        if apt_id:
-            if apt.exists():
-                data = Appointment.objects.get(id=apt_id)
-                data.delete()
-                return Response({"message": "Appointment delete successful"},status=status.HTTP_200_OK)
-            else:
-                return Response({"message": "You can not delete this appointment"},status=status.HTTP_400_BAD_REQUEST)
+        if appointment:
+            appointment.delete()
+            return Response({"message": "Appointment delete successful"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "You can not delete this appointment"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -245,6 +241,56 @@ class StripeCheckoutView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+from django.http import HttpResponse
+
+# If you are testing your webhook locally with the Stripe CLI you
+# can find the endpoint's secret by running `stripe listen`
+# Otherwise, find your endpoint's secret in your webhook settings in the Developer Dashboard
+endpoint_secret = 'whsec_b1ffc4de05fcba503ac51c7633aa3a4fa3481f708054ed6bb22975d1d8416eda'
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MyWebhookView(View):
+    def post(self, request, *args, **kwargs):
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        event = None
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+        except ValueError as e:
+            # Invalid payload
+            print('Error parsing payload: {}'.format(str(e)))
+            return HttpResponse(status=400)
+        except stripe.error.SignatureVerificationError as e:
+            # Invalid signature
+            print('Error verifying webhook signature: {}'.format(str(e)))
+            return HttpResponse(status=400)
+
+        # Handle the event
+        if event.type == 'payment_intent.succeeded':
+            payment_intent = event.data.object  # contains a stripe.PaymentIntent
+            print('PaymentIntent was successful!')
+            self.handle_payment_intent_succeeded(payment_intent)
+        elif event.type == 'payment_method.attached':
+            payment_method = event.data.object  # contains a stripe.PaymentMethod
+            print('PaymentMethod was attached to a Customer!')
+            self.handle_payment_method_attached(payment_method)
+        # ... handle other event types
+        else:
+            print('Unhandled event type {}'.format(event.type))
+
+        return HttpResponse(status=200)
+
+
 
 # @csrf_exempt
 # def stripe_webhook_view(request):
