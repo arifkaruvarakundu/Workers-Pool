@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import AxiosInstance from '../../axios_instance';
 function ServiceManagement() {
   const [services, setServices] = useState([]);
   const [newServiceTitle, setNewServiceTitle] = useState('');
@@ -7,9 +7,11 @@ function ServiceManagement() {
   const [newServiceImage, setNewServiceImage] = useState(null);
   const [image, setImage] = useState(null);
 
+  const axios=AxiosInstance()
+
   const fetchServices = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/services/', {
+      const response = await axios.get('services/', {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -33,7 +35,7 @@ function ServiceManagement() {
       formData.append('description', newServiceDescription);
       formData.append('service_img', image);
 
-      const response = await axios.post('http://127.0.0.1:8000/add_service/', formData, {
+      const response = await axios.post('add_service/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -54,7 +56,7 @@ function ServiceManagement() {
 
   const removeService = async (serviceId) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/delete_services/${serviceId}`);
+      await axios.delete(`delete_services/${serviceId}`);
       const updatedServices = services.filter((service) => service.id !== serviceId);
       setServices(updatedServices);
     } catch (error) {

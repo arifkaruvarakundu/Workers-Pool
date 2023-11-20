@@ -1,16 +1,19 @@
 import Navbar from '../components/Navbar/Navbar';
 import Banner from '../components/Banner';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import AxiosInstance from '../../axios_instance';
 import { Link } from 'react-router-dom';
+// import Chat from '../components/chat';
 
 function Home() {
   const [services, setServices] = useState([]);
 
+  const axios=AxiosInstance()
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/services/', {
+        const response = await axios.get('services/', {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -58,6 +61,10 @@ function Home() {
           <Link to="/services" className="text-blue-500 hover:underline font-bold">
            Show More
           </Link>
+          <div>
+        
+        {/* <Chat roomName="chatroom" /> */}
+      </div>
         </div>
     </div>
   );

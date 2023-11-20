@@ -13,6 +13,16 @@ import { Provider } from 'react-redux';
 import store from './Redux/store';
 import Add_details from './pages/add_details';
 import Services from './pages/services';
+import ServiceWorkers from './pages/serviceworkers';
+import WorkerDetails from './pages/worker_details';
+import BookAppointment from './pages/Book_appointment';
+import PaymentComponent from './pages/payment'
+import Worklog_user from './pages/Worklog_user';
+import Worklog_worker from './pages/Worklog_worker';
+import Userchat from './components/userchat';
+import WorkerChat from './components/workerchat';
+
+
 
 function App() {
   return (
@@ -30,6 +40,14 @@ function App() {
           <Route path="/profile_user" element={<Profile_user />} />
           <Route path="/add_details" element={<Add_details />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/service/:serviceId" element={<ServiceWorkers />} />
+          <Route path="/worker/:workerId" element={<WorkerDetails />} />
+          <Route path="/booking/:workerId" element={<BookAppointment />} />
+          <Route path="payment/" element={<PaymentComponent />} />
+          <Route path="worklog_user/" element={<Worklog_user />} />
+          <Route path="/chat/:workerId" element={<Userchat />} />
+          <Route path="/workerchat/:userId" element={<WorkerChat />}/>
+          <Route path="worklog_worker/" element={<Worklog_worker />} />
         </Routes>
       </Router>
     </Provider>

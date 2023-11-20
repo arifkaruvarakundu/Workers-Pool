@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import AxiosInstance from '../../axios_instance';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const axios=AxiosInstance()
+
   const handleBlockUnblock = async () => {
     try {
       if (selectedUser) {
-        const response = await axios.put(`http://127.0.0.1:8000/user/${selectedUser.id}/block_unblock/`);
+        const response = await axios.put(`user/${selectedUser.id}/block_unblock/`);
         // Handle the response here, e.g., show a success message or update the user status.
         console.log(response);
         console.log('User blocked/unblocked successfully');
@@ -25,7 +27,7 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/users/', {
+      const response = await axios.get('users/', {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -60,7 +62,7 @@ function UserManagement() {
             <tr key={user.id}>
               <td className="py-2 px-4">{user.id}</td>
               <td className="py-2 px-4">{user.username}</td>
-              <td className="py-2 px-4">{user.profile_img}</td>
+              <td className="py-2 px-4"><img className='w-16 h-16 object-cover' src={user.profile_img} alt="" /></td>
               <td className="py-2 px-4">{user.role}</td>
               <td className="py-2 px-4 text-center">
                 <button

@@ -4,22 +4,44 @@ import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import img from '../../assets/img.png'
-import { useDispatch, useSelector} from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { setNotAuthenticated } from '../../Redux/authslice';
-
+import { IoIosNotifications } from "react-icons/io";
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import {wserver} from '../../../server'
 
 function Navbar() {
-  const [showDropdown, setShowDropdown] = useState(false);
+  
   const [role,setRole]=useState(null)
   const navigateTo = useNavigate();
   const dispatch=useDispatch();
   
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorE2, setAnchorE2] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const open1 = Boolean(anchorE2);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handleClick1 = (event) => {
+    setAnchorE2(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleClose1 = () => {
+    setAnchorE2(null);
+  };
+
 
 
   const handleLogout = async () => {
@@ -37,11 +59,7 @@ function Navbar() {
       });
   
       if (response.status === 205) {
-       
-        localStorage.removeItem('user');
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        localStorage.removeItem('user_role');
+        localStorage.clear();
         dispatch(setNotAuthenticated());
         navigateTo('/');
       }
@@ -56,6 +74,20 @@ function Navbar() {
       setRole(value);
     }
   }, []);
+
+  // useEffect(() => {
+  //   const socket = new WebSocket(`ws://${wserver}/ws/chat/${roomName}/`);
+
+  //   socket.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     // Handle the received notification, e.g., show an alert
+  //     alert(data.message);
+  //   };
+
+  //   return () => {
+  //     socket.close();
+  //   };
+  // }, []);
   
   
 
@@ -78,35 +110,67 @@ function Navbar() {
               Contact
             </Link>
           </div>
-          {isAuthenticated && role ? (
-            <div className="relative group">
-              <button className="text-white cursor-pointer group-hover:underline" onClick={toggleDropdown}>
-                <img src={img} alt="User" className="w-10 h-10 rounded-full" />
-              </button>
-              {showDropdown && (
-                <div className="absolute bg-white right-0 mt-2 border border-gray-200 p-2 rounded shadow z-10">
-                  
-                  {role === "admin" ? (
-                    <Link to="/Admin_Page" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
-                      Dashboard
-                    </Link>
-                  ) : (
-                    <Link to="/profile_user" className="block py-2 px-4 text-gray-800 hover:text-blue-700">
-                      Profile
-                    </Link>
-                  )}
-                  <button onClick={handleLogout} className="block py-2 px-4 text-gray-800 hover:text-blue-700">
-                    Logout
-                  </button>
-                </div>
-              )}
+          <div>
+      <Button
+        id="basic-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+      >
+        <IoIosNotifications color='white' size={30}/>
+      </Button>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={handleClose}>Notifications</MenuItem>
+        
+      </Menu>
+    </div>
+            {isAuthenticated && role ? (
+        <div className="relative group">
+          <Button
+            id="custom-menu-button"
+            aria-controls={open1 ? 'custom-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open1 ? 'true' : undefined}
+            onClick={handleClick1}
+          >
+            <img src={img} alt="User" className="w-10 h-10 rounded-full" />
+          </Button>
 
-            </div>
-          ) : (
-            <Link to="/signin" className="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded">
-              SignIn / SignUp
-            </Link>
-          )}
+          <Menu
+            id="custom-menu"
+            anchorEl={anchorE2}
+            open={open1}
+            onClose={handleClose1}
+            MenuListProps={{
+              'aria-labelledby': 'custom-menu-button',
+            }}
+          >
+            {role === 'admin' ? (
+              <MenuItem onClick={handleClose1} component={Link} to="/Admin_Page">
+                Dashboard
+              </MenuItem>
+            ) : (
+              <MenuItem onClick={handleClose1} component={Link} to="/profile_user">
+                Profile
+              </MenuItem>
+            )}
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+        </div>
+      ) : (
+        <Link to="/signin" className="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded">
+          SignIn / SignUp
+        </Link>
+      )}
         </div>
       </div>
     </div>

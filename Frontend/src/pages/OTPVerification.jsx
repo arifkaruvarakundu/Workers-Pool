@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import AxiosInstance from '../../axios_instance';
 import Swal from 'sweetalert2';
 import Loader from '../components/Loader'; 
 
@@ -10,6 +10,7 @@ function OTPVerification() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const axios=AxiosInstance()
 
   const handleChange = (e) => {
     const { value } = e.target;
@@ -24,7 +25,7 @@ function OTPVerification() {
     showPleaseWaitAlert();
 
     axios
-      .post('http://127.0.0.1:8000/verify_registration_otp/', { otp }, {
+      .post('verify_registration_otp/', { otp }, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       })

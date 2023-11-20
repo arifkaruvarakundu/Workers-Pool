@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import axios from 'axios';
+import AxiosInstance from '../../axios_instance';
 Modal.setAppElement('#root'); // Set the app element
 
 
@@ -8,6 +8,8 @@ const ChangePasswordModal = ({ isOpen, onRequestClose }) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const axios=AxiosInstance()
 
   const customStyles = {
     content: {
@@ -27,7 +29,7 @@ const ChangePasswordModal = ({ isOpen, onRequestClose }) => {
     if (newPassword === confirmPassword) {
       await axios
         .post(
-          'http://127.0.0.1:8000/change_password/',
+          'change_password/',
           { new_password: newPassword },{old_password:oldPassword},
           {
             headers: {

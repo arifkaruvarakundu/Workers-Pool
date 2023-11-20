@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import ChangePasswordModal from './change_pass';
 import { useDispatch, useSelector } from 'react-redux';
 import { openPasswordModal, closePasswordModal } from '../Redux/passwordModalSlice';
-import axios from 'axios';
+import AxiosInstance from '../../axios_instance';
 import { Link } from 'react-router-dom';
 
 const Profile_user = () => {
   const [image, setImage] = useState(null);
   const isChangePasswordModalOpen = useSelector((state) => state.passwordModal.isChangePasswordModalOpen);
   const dispatch = useDispatch();
+  const axios=AxiosInstance()
 
   const handleOpenPasswordModal = () => {
     dispatch(openPasswordModal());
@@ -32,7 +33,7 @@ const Profile_user = () => {
 
       try {
         // Replace 'YOUR_BACKEND_URL' with the actual URL of your Django API endpoint for image upload.
-        const response = await axios.post('http://localhost:8000/upload_profile_pic/', formData, {
+        const response = await axios.post('upload_profile_pic/', formData, {
           headers: { 
             'Content-Type': 'multipart/form-data',
           },
@@ -44,6 +45,7 @@ const Profile_user = () => {
       }
     }
   };
+  
   const userRole = JSON.parse(localStorage.getItem('user')).user_role;
 
   return (
@@ -70,12 +72,12 @@ const Profile_user = () => {
           </button>
         </div>
         <div className="mt-4 text-center">
-          <button
+          {/* <button
             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2"
             onClick={handleOpenPasswordModal}
           >
             Change Password
-          </button>
+          </button> */}
 
           <ChangePasswordModal isOpen={isChangePasswordModalOpen} onRequestClose={handleClosePasswordModal} />
           <Link to= "/add_details">
@@ -85,14 +87,24 @@ const Profile_user = () => {
           </Link>
         </div>
         <div className="mt-4 text-center">
+        {userRole === 'worker' ? (
+        <Link to="/worklog_worker">
           <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
             Show Work Log
           </button>
-          {userRole === 'worker' && (
+        </Link>
+      ) : (
+        <Link to="/worklog_user">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
+            Show Work Log
+          </button>
+        </Link>
+      )}
+          {/* {userRole === 'worker' && (
             <button className="bg-blue-500 hover-bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
               Show Bookings
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>

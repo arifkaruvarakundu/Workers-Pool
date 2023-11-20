@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Swal from 'sweetalert2';
+import AxiosInstance from '../../axios_instance';
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -14,7 +14,8 @@ function SignUp() {
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  
+  const axios=AxiosInstance()
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -25,45 +26,42 @@ function SignUp() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  // Show the "Please wait" alert
 
     showPleaseWaitAlert();
+
     if (formData.password !== formData.confirmPassword) {
       Swal.fire({
         icon: 'error',
         title: 'Password Mismatch',
         text: 'Passwords do not match. Please check your input.',
       });
-      return; // Stop execution if passwords don't match
+      return;
     }
 
-    axios.post('http://127.0.0.1:8000/signup/', formData, {headers:{'Content-Type' : 'application/json'}, withCredentials : true })
+    axios
+      .post('signup/', formData, {
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
+      })
       .then((response) => {
-        
-        // Handle the successful response here
-        console.log('Otp sent successfully:', response.data);
+        console.log('Registration successful:', response.data);
         const email = formData.email;
         closePleaseWaitAlert();
         showSuccessAlert(email);
-        
-        // Navigate to the OTP verification page
         navigate('/OTPVerification');
       })
       .catch((error) => {
-        // Handle any errors here
         console.error('Registration failed:', error);
         closePleaseWaitAlert();
-        let errorMessage = 'Registration failed. Please try again later.'; // Default error message
+        let errorMessage = 'Registration failed. Please try again later.';
 
-  // Check if the error response contains a custom error message
         if (error.response && error.response.data && error.response.data.error) {
-        errorMessage = error.response.data.error; // Use the custom error message from the response
+          errorMessage = error.response.data.error;
         }
 
         showErrorAlert(errorMessage);
       });
   };
-
 
   const showPleaseWaitAlert = () => {
     setIsLoading(true);
@@ -71,7 +69,7 @@ function SignUp() {
     Swal.fire({
       icon: 'info',
       title: 'Please Wait',
-      text: ' we are verifiying your details',
+      text: 'We are verifying your details',
       allowOutsideClick: false,
       showConfirmButton: false,
       onBeforeOpen: () => {
@@ -80,13 +78,11 @@ function SignUp() {
     });
   };
 
-  // Function to close the "Please wait" alert
   const closePleaseWaitAlert = () => {
     setIsLoading(false);
     Swal.close();
   };
 
-  // Function to show a success alert
   const showSuccessAlert = (email) => {
     Swal.fire({
       icon: 'success',
@@ -95,7 +91,6 @@ function SignUp() {
     });
   };
 
-  // Function to show an error alert
   const showErrorAlert = (errorMessage) => {
     Swal.fire({
       icon: 'error',
@@ -104,77 +99,59 @@ function SignUp() {
     });
   };
 
-
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="w-full max-w-md">
-        <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
-        <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}" />
-          <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}" />
-          <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-              Username
-            </label>
+    <div className="min-h-screen bg-gradient-to-b from-indigo-200 to-indigo-500 flex justify-center items-center">
+      <div className="p-4 bg-white rounded-lg shadow-lg flex flex-col justify-center items-center w-[35%]">
+        <h2 className="text-2xl font-bold mb-4 bg-gray-200 py-2 px-4 rounded-tl-lg rounded-tr-lg">
+          Sign Up
+        </h2>
+        <form className="space-y-4 w-full px-10">
+          <div>
             <input
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="username"
               type="text"
               name="username"
-              placeholder="Username"
               value={formData.username}
               onChange={handleChange}
+              placeholder="Username"
+              className="w-full p-2 border rounded-lg"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
-            </label>
+          <div>
             <input
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
               type="email"
               name="email"
-              placeholder="Email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="Email"
+              className="w-full p-2 border rounded-lg"
             />
           </div>
-          
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
-            </label>
+          <div>
             <input
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
               type="password"
               name="password"
-              placeholder="Password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Password"
+              className="w-full p-2 border rounded-lg"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-              Confirm Password
-            </label>
+          <div>
             <input
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="confirmPassword"
               type="password"
               name="confirmPassword"
-              placeholder="Confirm Password"
               value={formData.confirmPassword}
               onChange={handleChange}
+              placeholder="Confirm Password"
+              className="w-full p-2 border rounded-lg"
             />
           </div>
-          <div className="mb-6">
+          <div>
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
               Select Your Role
             </label>
             <select
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full p-2 border rounded-lg"
               id="role"
               name="role"
               value={formData.role}
@@ -184,16 +161,17 @@ function SignUp() {
               <option value="worker">Worker</option>
             </select>
           </div>
-          <div className="text-center">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
-          >
-            Sign Up
-          </button>
-        </div>
+          <div className="flex justify-center py-3">
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
+            >
+              Sign Up
+            </button>
+          </div>
         </form>
-        <p className="text-center">
+        <p className="text-center py-5">
           Already have an account?{' '}
           <Link to="/signin" className="text-blue-500 hover:underline">
             Sign in here
