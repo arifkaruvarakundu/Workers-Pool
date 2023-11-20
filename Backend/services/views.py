@@ -57,125 +57,117 @@ class View_Confirm_Appointment(APIView):
         serializer = self.serializer_class(q, many=True).data
         return Response(serializer,status=status.HTTP_200_OK)
 
-class All_Appointment(APIView):
+
+class All_Appointment_worker(APIView):
     serializer_class = AppointmentSerializer
 
-    def get(self, request):
-        print("&&&&&&&&&&&&%$$$$$$$$$$$$",request.data)
-        q = Appointment.objects.all()
+    def get(self, request, id):
+        try:
+            user_id = int(id)
+        except ValueError:
+            return Response({"error": "Invalid user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+        q = Appointment.objects.filter(worker_id=user_id)
         serializer = self.serializer_class(q, many=True).data
-        return Response(serializer,status=status.HTTP_200_OK)
+        return Response(serializer, status=status.HTTP_200_OK)
+    
+
+class All_Appointment_user(APIView):
+    serializer_class = AppointmentSerializer
+
+    def get(self, request, id):
+        try:
+            user_id = int(id)
+        except ValueError:
+            return Response({"error": "Invalid user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+        q = Appointment.objects.filter(customer_id=user_id)
+        serializer = self.serializer_class(q, many=True).data
+        return Response(serializer, status=status.HTTP_200_OK)
 
 class Assign_book_status(APIView):
     serializer_class = AppointmentSerializer
-    permission_classes = IsAuthenticated, IsAdminUser
 
-    def post(self, request):
-        appointment_id = request.data.get("apt_id")
-        status = request.data.get('status')
-        appointment = Appointment.objects.get(id=appointment_id)
-        appointment.status = status
-        appointment.save()
+    def put(self, request, id):
+        appointment_id = int(id)
+        status_value = request.data.get('status')
 
-        return Response({"message": "Appointment status changed successfully"}, status=status.HTTP_200_OK)
-    
+        try:
+            appointment = Appointment.objects.get(id=appointment_id)
+            appointment.status = status_value 
+            appointment.save()
 
-from rest_framework import status as http_status
+            return Response({"message": "Appointment status changed successfully"}, status=status.HTTP_200_OK)
+        except Appointment.DoesNotExist:
+            return Response({"message": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
 
 from rest_framework import status as http_status
 
 class Book_appointment(APIView):
     status_mapping = {
-        "waiting_for_payment": http_status.HTTP_201_CREATED,
         "Pending": http_status.HTTP_200_OK,
-        "Accept": http_status.HTTP_202_ACCEPTED,
+        "Accepted": http_status.HTTP_202_ACCEPTED,
+        "Rejected": http_status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+        "Cancelled": http_status.HTTP_204_NO_CONTENT
     }
 
     def post(self, request):
         customer_id = request.data.get('user_id')
         customer = User.objects.get(id=customer_id)
+        worker_id=request.data.get('workerId')
+        worker=User.objects.get(id=worker_id)
         service_id = request.data.get("serviceId")
         service = Services.objects.get(id=service_id)
         short_description = request.data.get('short_description')
         date = request.data.get('selectedDate')
-        status_str = request.data.get('status', "waiting_for_payment")
-        
-
-        # try:
-        #     date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
-        #     print("$$$$$$$$$$$$$$$$")
-        # except ValueError:
-        #     return Response(
-        #         {"date1": ["Invalid date format. Use YYYY-MM-DDTHH:mm:ss.SSSZ format."]},
-        #         status=http_status.HTTP_400_BAD_REQUEST
-        #     )
+        status_str = request.data.get('status', "Pending")
         
         if status_str not in [choice[0] for choice in Appointment._meta.get_field('status').choices]:
             return Response(
                 {"status": ["Invalid value for 'status'."]},
                 status=http_status.HTTP_400_BAD_REQUEST
             )
-
-        
-        status = self.status_mapping[status_str]
-
+            
         appointment = Appointment.objects.create(
             service=service,
             customer=customer,
+            worker=worker,
             status=status_str,
             short_description=short_description,
             date1=date,
         )
 
+        response_data = {
+            "message": "Appointment created successfully",
+            "appointment_id": appointment.id,  
+        }
 
-        
+        status = self.status_mapping[status_str]
 
-        return Response({"message": "Appointment created successfully"}, status=status)
+        return Response(response_data, status=status)
 
+class AppointmentStatusView(APIView):
+    def get(self, request, appointment_id):
+        try:
+            
+            appointment = Appointment.objects.get(pk=appointment_id)
 
+            
+            appointment_status = appointment.status
 
-
-
-
-
-
-
-
-# class CheckoutView(View):  
-#     def post(self, request, *args, **kwargs):
-#         print("%$$$$$$$$$$$&&&&&&&&&&&&")
-       
-#         checkout_session = stripe.checkout.Session.create(
-#             line_items=[
-#                 {
-#                     "price": "price_1OA5lNSIwD41cwvpQQ5acn1O",
-#                     "quantity": 1,
-#                 },
-#             ],
-#             mode="payment",
-#             success_url='http://localhost:5173/payment_successful',
-#             cancel_url='http://localhost:5173/payment_cancelled',
-#         )
-#         return redirect(checkout_session.url, code=303)
+            return Response({'status': appointment_status}, status=status.HTTP_200_OK)
+        except Appointment.DoesNotExist:
+            return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class TestPaymentView(APIView):
-#     def post(self, request, *args, **kwargs):
-#         # Your view logic here
-#         test_payment_intent = stripe.PaymentIntent.create(
-#             amount=1000, currency='pln',
-#             payment_method_types=['card'],
-#             receipt_email='test@example.com'
-#         )
-
-#         return Response({'client_secret': test_payment_intent.client_secret}, status=status.HTTP_200_OK)
 
 from django.shortcuts import get_object_or_404
 class DeleteAppointment(APIView):
     def put(self, request, id):
-
-        print("&&&&&&&&&&&&&&&",request.data)
-        
         appointment = get_object_or_404(Appointment,id=id)
 
         if appointment:
@@ -184,22 +176,25 @@ class DeleteAppointment(APIView):
         else:
             return Response({"message": "You can not delete this appointment"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-
 class StripeCheckoutView(APIView):
     def post(self, request):
         # userId = request.data.get("userId")
         # user = User.objects.get(pk=userId)
         # Name_of_User = user.first_name
         # driver = request.data.get("driver")
-        # tripId = request.data.get("tripId")
+        appointment_id = request.data.get("appointment_id")
         # Trip = TripRequest.objects.get(pk=tripId)
         # Total_fare = Trip.total_fare
         # print('requests strip checking')
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
             # Ensure that course.price is an integer representing the price in cents.
-            # pricess = int(Total_fare* 100)            
+            # pricess = int(Total_fare* 100)
+            # 
+            appointment = Appointment.objects.get(pk=appointment_id)
+            appointment.status = 'pending'
+            appointment.save()
+
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
                     {
@@ -224,7 +219,7 @@ class StripeCheckoutView(APIView):
             return Response({'url': checkout_session.url, 'session_id': checkout_session.id}, status=status.HTTP_200_OK)
 
         except stripe.error.StripeError as e:
-            # Handle Stripe-specific errors
+           
             print(f"Stripe Error: {e}")
             return Response(
                 {
@@ -242,15 +237,10 @@ class StripeCheckoutView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-# Set your secret key. Remember to switch to your live secret key in production.
-# See your keys here: https://dashboard.stripe.com/apikeys
-stripe.api_key = settings.STRIPE_SECRET_KEY
+stripe.api_key =settings.STRIPE_SECRET_KEY
 
 from django.http import HttpResponse
 
-# If you are testing your webhook locally with the Stripe CLI you
-# can find the endpoint's secret by running `stripe listen`
-# Otherwise, find your endpoint's secret in your webhook settings in the Developer Dashboard
 endpoint_secret = 'whsec_b1ffc4de05fcba503ac51c7633aa3a4fa3481f708054ed6bb22975d1d8416eda'
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -267,135 +257,26 @@ class MyWebhookView(View):
                 payload, sig_header, endpoint_secret
             )
         except ValueError as e:
-            # Invalid payload
+         
             print('Error parsing payload: {}'.format(str(e)))
             return HttpResponse(status=400)
         except stripe.error.SignatureVerificationError as e:
-            # Invalid signature
+            
             print('Error verifying webhook signature: {}'.format(str(e)))
             return HttpResponse(status=400)
 
-        # Handle the event
+      
         if event.type == 'payment_intent.succeeded':
-            payment_intent = event.data.object  # contains a stripe.PaymentIntent
+            payment_intent = event.data.object  
             print('PaymentIntent was successful!')
             self.handle_payment_intent_succeeded(payment_intent)
         elif event.type == 'payment_method.attached':
-            payment_method = event.data.object  # contains a stripe.PaymentMethod
+            payment_method = event.data.object  
             print('PaymentMethod was attached to a Customer!')
             self.handle_payment_method_attached(payment_method)
-        # ... handle other event types
+  
         else:
             print('Unhandled event type {}'.format(event.type))
 
         return HttpResponse(status=200)
-
-
-
-# @csrf_exempt
-# def stripe_webhook_view(request):
-
-#     send_mail(
-#                     'OTP Verification',
-#                     f'Your OTP is: here',
-#                     'your_email@example.com',  # Replace with your email address
-#                     ['sudheesh448@gmail.com'],
-#                     fail_silently=False,
-#                 )
-
-#     payload = request.body
-#     endpoint_secret = 'whsec_7xjf2G4xsowxk3MAVTq5k7Xy1FWqQJSR'
-#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-#     event = None
-
-#     try:
-#         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-#     except ValueError as e:
-#         # Invalid payload
-#         return HttpResponse(status=400)
-#     except stripe.error.SignatureVerificationError as e:
-#         # Invalid signature
-#         return HttpResponse(status=400)
-
-#     if event['type'] == 'checkout.session.completed':
-#         session = stripe.checkout.Session.retrieve(
-#         event['data']['object']['id'],
-#         expand=['line_items'],
-#         )
-#         # print("session",session)
-#         metadata = session.metadata
-#         tripId = metadata.get('tripId')
-#         driver = metadata.get('driver')
-#         userId = metadata.get('userId')
-#         amount = metadata.get('amount')
-
-#         # Access payment information
-#         # Access payment information using line_items
-#         line_items = session.line_items
-#         payment_id = line_items.data[0]['id']
-#         payment_status = session.payment_status
-
-#         print("tripId:", tripId)
-#         print("driver:", driver)
-#         print("userId:", userId)
-#         print("Payment ID:", payment_id)
-#         print("Payment Status:", payment_status)
-#         print("amount",amount)
-
-#         payment = Payment.objects.create(
-#         trip=TripRequest.objects.get(pk=tripId),
-#         amount=amount,
-#         date_time=timezone.now(),  # You may need to import timezone
-#         user=User.objects.get(pk=userId),
-#         driver=driver,
-#         payment_status=payment_status,
-#         payment_id=payment_id
-#     )
-        
-        
-#         print("payment table entered")
-#     # Update the TripRequest with the payment information
-        
-
-#         driver_user = User.objects.get(username=driver)
-#         driver_wallet, created = Wallet.objects.get_or_create(user=driver_user)
-
-#         # Create a transaction to debit the driver's wallet
-#         if payment_status == 'paid':
-#                 commission = 0.03 * float(amount)
-#                 transaction = Transaction.objects.create(
-#                 wallet=driver_wallet,
-#                 user=User.objects.get(pk=userId),
-#                 credit=float(amount)-commission,
-#                 actual_fare=float(amount),  # Update this based on your business logic
-#                 commission=commission,  # Set commission to 0 if there's no commission
-#                 trip=TripRequest.objects.get(pk=tripId)
-#                 )
-
-#                 print("transaction table entered")
-#                 trip_request = get_object_or_404(TripRequest, pk=tripId)
-#                 trip_request.payment_status = "Paid"
-#                 trip_request.payment_method = "stripe"
-#                 trip_request.payment_id = payment_id
-#                 trip_request.save()
-#                 print("trip request table updated")
-
-#                 tripdriver = RequestDriver.objects.get(trip_id=tripId)
-#                 tripdriver.payment_status="Paid"
-#                 tripdriver.save()
-
-#                 # Update the wallet balance
-                
-#                 # Calculate the amount to be credited to the driver's wallet (97% of the amount)
-#                 credit_amount = float(amount) - commission
-#                 # Update the driver's wallet balance with the credit amount
-#                 driver_wallet.balance += credit_amount
-#                 driver_wallet.save()
-#                 print("driver wallete updated")
-
-#                 commission_transaction = DriversClubWallet.objects.create(
-#                 credit=commission,  # Credit the commission amount
-#                 trip=TripRequest.objects.get(pk=tripId),  # Associate the transaction with the trip (if applicable)
-#             )
-#                 print("Admin wallete updated")
-#     return HttpResponse(status=200)
+     

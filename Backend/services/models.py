@@ -23,8 +23,9 @@ class Booking_Paid(models.Model):
 
 class Appointment(models.Model):
     service = models.ForeignKey(Services, on_delete=models.CASCADE, null=True)
-    customer = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    status = models.CharField(max_length=20, null=True,choices=(("waiting_for_payment","waiting_for_payment"),("Pending", "Pending"), ("Accept", "Accept")))
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='Booking_user')
+    worker = models.ForeignKey(User, on_delete=models.CASCADE,related_name='Booked_worker',null=True)
+    status = models.CharField(max_length=20, null=True,choices=(("Pending", "Pending"),("Accepted", "Accepted"),("Rejected", "Rejected"),("Cancelled", "Cancelled")),default='Pending')
     short_description = models.TextField(default='')
     date1 = models.DateField(null=True)
     
