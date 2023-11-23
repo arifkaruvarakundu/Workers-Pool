@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.utils import timezone as django_timezone
 from django.shortcuts import redirect
 from django.views import View
 from rest_framework.generics import ListAPIView
@@ -86,6 +87,16 @@ class All_Appointment_user(APIView):
         q = Appointment.objects.filter(customer_id=user_id)
         serializer = self.serializer_class(q, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
+    
+
+class All_Appointment(APIView):
+    serializer_class = AppointmentSerializer
+
+    def get(self, request):
+        q = Appointment.objects.all()
+        serializer = self.serializer_class(q, many=True).data
+        return Response(serializer, status=status.HTTP_200_OK)
+
 
 class Assign_book_status(APIView):
     serializer_class = AppointmentSerializer
@@ -163,6 +174,10 @@ class AppointmentStatusView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class AppointmentStatusChoices(APIView):
+    def get(self, request):
+        choices = Appointment.get_status_choices()
+        return Response(choices, status=status.HTTP_200_OK)
 
 
 from django.shortcuts import get_object_or_404
@@ -178,21 +193,22 @@ class DeleteAppointment(APIView):
 
 class StripeCheckoutView(APIView):
     def post(self, request):
-        # userId = request.data.get("userId")
-        # user = User.objects.get(pk=userId)
-        # Name_of_User = user.first_name
-        # driver = request.data.get("driver")
+        userId = request.data.get("user_id")
+        user = User.objects.get(pk=userId)
+        Name_of_User = user.first_name
+        worker_username = request.data.get("workerUsername")
         appointment_id = request.data.get("appointment_id")
-        # Trip = TripRequest.objects.get(pk=tripId)
-        # Total_fare = Trip.total_fare
-        # print('requests strip checking')
+        appointment=Appointment.objects.get(id=appointment_id)
+        payment_status=appointment.is_paid
+
+
+        
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
-            # Ensure that course.price is an integer representing the price in cents.
-            # pricess = int(Total_fare* 100)
-            # 
+            
             appointment = Appointment.objects.get(pk=appointment_id)
             appointment.status = 'pending'
+            appointment.is_paid='True'
             appointment.save()
 
             checkout_session = stripe.checkout.Session.create(
@@ -207,11 +223,13 @@ class StripeCheckoutView(APIView):
                 payment_method_types=['card'],
                 mode='payment',
                 metadata = {
-                    # 'userId': userId,
-                    # 'driver': driver,
-                    # 'tripId': tripId,
-                    # 'amount' : Total_fare,
+                    'userId': userId,
+                    'worker': worker_username,
+                    'appointmentId': appointment_id,
+                    'amount' : "RS:50/-",
+                    'payment_status':'True',
                                     },
+                
                 
                  success_url=settings.BASE_URL + '/?success=true',
                  cancel_url=settings.BASE_URL + '/?canceled=true'
@@ -249,6 +267,7 @@ from django.utils.decorators import method_decorator
 class MyWebhookView(View):
     def post(self, request, *args, **kwargs):
         payload = request.body
+        
         sig_header = request.META['HTTP_STRIPE_SIGNATURE']
         event = None
 
@@ -266,17 +285,51 @@ class MyWebhookView(View):
             return HttpResponse(status=400)
 
       
-        if event.type == 'payment_intent.succeeded':
-            payment_intent = event.data.object  
-            print('PaymentIntent was successful!')
-            self.handle_payment_intent_succeeded(payment_intent)
-        elif event.type == 'payment_method.attached':
-            payment_method = event.data.object  
-            print('PaymentMethod was attached to a Customer!')
-            self.handle_payment_method_attached(payment_method)
-  
-        else:
-            print('Unhandled event type {}'.format(event.type))
+        if event.type == 'checkout.session.completed':
+            session = stripe.checkout.Session.retrieve(
+                        event['data']['object']['id'],
+                        expand=['line_items'],
+                        )
+            
 
+            metadata = session.metadata
+            payment_status = metadata.get('payment_status')
+            worker = metadata.get('worker')
+            appointmentId=metadata.get('appointmentId')
+            userId = metadata.get('userId')
+            amount = metadata.get('amount')
+
+            # Access payment information
+            # Access payment information using line_items
+            line_items = session.line_items
+            payment_id = line_items.data[0]['id']
+            payment_status = session.payment_status
+
+
+            payment = Payment.objects.create(
+            appointment=Appointment.objects.get(pk=appointmentId),
+            amount=amount,
+            date_time = django_timezone.now(),  # You may need to import timezone
+            user=User.objects.get(pk=userId),
+            worker=worker,
+            payment_status=payment_status,
+            payment_id=payment_id
+        )
+            
+            print('PaymentIntent was successful!')
+            
         return HttpResponse(status=200)
-     
+    
+
+from django.http import JsonResponse
+
+
+class GetBusyDatesView(View):
+    def get(self, request, worker_id):
+        try:
+            busy_dates = Appointment.objects.filter(worker_id=worker_id, status='Accepted').values_list('date1', flat=True)
+            # Convert busy dates to a list of strings in ISO format
+            busy_dates_iso = [str(date) for date in busy_dates]
+            return JsonResponse({'busyDates': busy_dates_iso})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

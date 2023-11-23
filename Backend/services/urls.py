@@ -11,12 +11,15 @@ urlpatterns = [
     path('assign_appointment_status/<int:id>', Assign_book_status.as_view(), name='assign-appointment-status'),
     path('view_new_appointment', View_New_Appointment.as_view(), name='view-new-appointment'),
     path('view_confirm_appointment', View_Confirm_Appointment.as_view(), name='view-confirm-appointment'),
-    path('all_appointment_worker/<int:id>/', All_Appointment_worker.as_view(), name='all-appointment'),
-    path('all_appointment_user/<int:id>/', All_Appointment_user.as_view(), name='all-appointment'),
+    path('all_appointments/', All_Appointment.as_view(), name='all_appointments'),
+    path('all_appointment_worker/<int:id>/', All_Appointment_worker.as_view(), name='all-appointment_worker'),
+    path('all_appointment_user/<int:id>/', All_Appointment_user.as_view(), name='all-appointment_user'),
+    path('appointment_status_choices/', AppointmentStatusChoices.as_view(), name='appointment_status_choices'),
     path('book_appointment', Book_appointment.as_view(), name='book-appointment'),
     path('delete_appointment/<int:id>/', DeleteAppointment.as_view(), name='delete-appointment'),
     path('checkout/', StripeCheckoutView.as_view(), name='checkout'),
     path('webhooks/',MyWebhookView.as_view()),
+    path('get_busy_dates/<int:worker_id>/', GetBusyDatesView.as_view(), name='get_busy_dates'),
     path('appointment_status/<int:appointment_id>/', AppointmentStatusView.as_view(), name='appointment_status'),
 
 ]
