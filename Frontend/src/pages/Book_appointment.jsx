@@ -13,46 +13,60 @@ const BookAppointment = () => {
   const [short_description, setShort_description] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
+  const [busyDates, setBusyDates] = useState([]);
 
-  const axios=AxiosInstance()
+  const axios = AxiosInstance();
 
   const status = useSelector(selectStatus);
   const serviceId = useSelector(selectServiceId);
-  console.log(serviceId)
   const user_id = localStorage.getItem('user_id');
 
   useEffect(() => {
     console.log('Service ID:', serviceId);
     console.log('User ID:', user_id);
-
   }, [serviceId, user_id]);
 
-  
+  const fetchBusyDates = async () => {
+    try {
+      const response = await axios.get(`get_busy_dates/${workerId}`);
+      setBusyDates(response.data.busyDates);
+    } catch (error) {
+      console.error('Error fetching busy dates:', error);
+    }
+  };
 
-  
+  useEffect(() => {
+    fetchBusyDates();
+  }, [workerId]);
+
+  const isDateBusy = (date) => {
+    const formattedDate = date.toISOString().split('T')[0];
+    return busyDates.includes(formattedDate);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const formData = new FormData();
     formData.append('short_description', short_description);
     const formattedDate = selectedDate.toISOString().split('T')[0];
     formData.append('selectedDate', formattedDate);
     formData.append('user_id', user_id);
-    formData.append('serviceId', serviceId); 
+    formData.append('serviceId', serviceId);
     formData.append('workerId', workerId);
     formData.append('status', status);
-  
+
     try {
       const response = await axios.post('book_appointment', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
+
       // Handle the response as needed
       console.log(response.data);
       localStorage.setItem('appointment_id', response.data.appointment_id);
-  
+
       // Show the confirmation modal
       setShowModal(true);
     } catch (error) {
@@ -60,7 +74,24 @@ const BookAppointment = () => {
       // Handle errors if needed
     }
   };
-  
+
+  const CustomDatePickerInput = ({ value, onClick }) => {
+    const date = new Date(value);
+    const isDisabled = isDateBusy(date);
+
+    return (
+      <div>
+        <input
+          type="text"
+          value={value}
+          onClick={onClick}
+          className={`w-full p-2 border rounded-lg ${isDisabled ? 'bg-red-500 text-white' : ''}`}
+          disabled={isDisabled}
+        />
+        {isDisabled && <p className="text-red-500">This date is not available. Please choose another date.</p>}
+      </div>
+    );
+  };
 
   const handleConfirmBooking = (paymentConfirmed) => {
     if (paymentConfirmed) {
@@ -90,24 +121,6 @@ const BookAppointment = () => {
               onChange={(e) => setShort_description(e.target.value)}
             />
           </div>
-          {/* <div>
-            <label htmlFor="service" className="block text-gray-700 text-sm font-bold mb-2">
-              Service
-            </label>
-            <select
-              id="service"
-              className="w-full p-2 border rounded-lg"
-              value={service}
-              onChange={(e) => setService(e.target.value)}
-            >
-              <option value="">Select a service</option>
-              {workerServices.map((workerService) => (
-                <option key={workerService.id} value={workerService.id}>
-                  {workerService.Title}
-                </option>
-              ))}
-            </select>
-          </div> */}
           <div>
             <label htmlFor="date" className="block text-gray-700 text-sm font-bold mb-2">
               Date
@@ -117,6 +130,8 @@ const BookAppointment = () => {
               selected={selectedDate}
               onChange={(date) => setSelectedDate(date)}
               className="w-full p-2 border rounded-lg"
+              customInput={<CustomDatePickerInput />}
+              filterDate={(date) => !isDateBusy(date)}
             />
           </div>
           <div className="flex justify-center py-3">
@@ -131,9 +146,7 @@ const BookAppointment = () => {
       </div>
       <BookingConfirmationModal show={showModal} onClose={() => setShowModal(false)} onConfirm={handleConfirmBooking} />
     </div>
-    
   );
-
 };
 
 export default BookAppointment;

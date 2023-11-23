@@ -8,11 +8,18 @@ const BookingConfirmationModal = ({ show, onClose, onConfirm }) => {
   const dispatch = useDispatch();
   
   const appointmentId = localStorage.getItem('appointment_id');
+  const userId=localStorage.getItem('user_id')
+  const workerId=localStorage.getItem('worker_id')
+  const workerUsername=localStorage.getItem('worker_username')
+
   const handlePayment = async () => {
     try {
       // Make a POST request to your Django backend to initiate the checkout session
       const response = await axios.post('http://localhost:8000/checkout/',{
         appointment_id: appointmentId,
+        user_id : userId,
+        worker_id :workerId,
+        workerUsername :workerUsername,
       });
       const sessionId = response.data.session_id;
       // Redirect to the Stripe checkout page using the URL from the response

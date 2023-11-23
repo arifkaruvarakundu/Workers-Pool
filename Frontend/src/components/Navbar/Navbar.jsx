@@ -155,7 +155,7 @@ function Navbar() {
             }}
           >
             {role === 'admin' ? (
-              <MenuItem onClick={handleClose1} component={Link} to="/Admin_Page">
+              <MenuItem onClick={handleClose1} component={Link} to="/Admin_Dashboard">
                 Dashboard
               </MenuItem>
             ) : (

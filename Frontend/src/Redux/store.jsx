@@ -4,6 +4,7 @@ import passwordModalReducer from './passwordModalSlice'
 import passwordReducer from './passwordSlice';
 import serviceReducer from './serviceSlice';
 import statusReducer from './statusSlice'
+import rightDrawerSlice from './RightDrawerSlice';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     password: passwordReducer,
     service: serviceReducer,
     status: statusReducer,
+    rightDrawer : rightDrawerSlice,
     
   },
 
