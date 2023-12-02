@@ -67,13 +67,10 @@ class All_Appointment_worker(APIView):
             user_id = int(id)
         except ValueError:
             return Response({"error": "Invalid user_id"}, status=status.HTTP_400_BAD_REQUEST)
-        
-
         q = Appointment.objects.filter(worker_id=user_id)
         serializer = self.serializer_class(q, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
     
-
 class All_Appointment_user(APIView):
     serializer_class = AppointmentSerializer
 
@@ -135,6 +132,7 @@ class Book_appointment(APIView):
         date = request.data.get('selectedDate')
         status_str = request.data.get('status', "Pending")
         
+        
         if status_str not in [choice[0] for choice in Appointment._meta.get_field('status').choices]:
             return Response(
                 {"status": ["Invalid value for 'status'."]},
@@ -156,18 +154,14 @@ class Book_appointment(APIView):
         }
 
         status = self.status_mapping[status_str]
-
         return Response(response_data, status=status)
+
 
 class AppointmentStatusView(APIView):
     def get(self, request, appointment_id):
-        try:
-            
+        try: 
             appointment = Appointment.objects.get(pk=appointment_id)
-
-            
             appointment_status = appointment.status
-
             return Response({'status': appointment_status}, status=status.HTTP_200_OK)
         except Appointment.DoesNotExist:
             return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -184,7 +178,6 @@ from django.shortcuts import get_object_or_404
 class DeleteAppointment(APIView):
     def put(self, request, id):
         appointment = get_object_or_404(Appointment,id=id)
-
         if appointment:
             appointment.delete()
             return Response({"message": "Appointment delete successful"}, status=status.HTTP_200_OK)
@@ -200,14 +193,11 @@ class StripeCheckoutView(APIView):
         appointment_id = request.data.get("appointment_id")
         appointment=Appointment.objects.get(id=appointment_id)
         payment_status=appointment.is_paid
-
-
-        
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
             
             appointment = Appointment.objects.get(pk=appointment_id)
-            appointment.status = 'pending'
+            appointment.status = 'Pending'
             appointment.is_paid='True'
             appointment.save()
 
@@ -262,6 +252,8 @@ from django.http import HttpResponse
 endpoint_secret = 'whsec_b1ffc4de05fcba503ac51c7633aa3a4fa3481f708054ed6bb22975d1d8416eda'
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from Admin.models import AdminWallet
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class MyWebhookView(View):
@@ -316,6 +308,15 @@ class MyWebhookView(View):
             payment_id=payment_id
         )
             
+            amount_to_add = 50 * Payment.objects.count()
+            admin_user = User.objects.get(role='admin')
+            admin_wallet = AdminWallet.objects.get(user=admin_user)
+            admin_wallet.credit += amount_to_add
+            admin_wallet.balance += amount_to_add
+            admin_wallet.save()
+
+            print(f'Added {amount_to_add} rupees to Admin wallet!')
+            
             print('PaymentIntent was successful!')
             
         return HttpResponse(status=200)
@@ -323,13 +324,11 @@ class MyWebhookView(View):
 
 from django.http import JsonResponse
 
-
 class GetBusyDatesView(View):
     def get(self, request, worker_id):
         try:
             busy_dates = Appointment.objects.filter(worker_id=worker_id, status='Accepted').values_list('date1', flat=True)
-            # Convert busy dates to a list of strings in ISO format
             busy_dates_iso = [str(date) for date in busy_dates]
             return JsonResponse({'busyDates': busy_dates_iso})
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+             return JsonResponse({'error': str(e)}, status=500)

@@ -25,7 +25,7 @@ class Appointment(models.Model):
     short_description = models.TextField(default='')
     date1 = models.DateField(null=True)
     is_paid=models.BooleanField(default=False)
-    is_active=models.BooleanField(default=False)
+    
 
     STATUS_CHOICES = (
         ("Pending", "Pending"),

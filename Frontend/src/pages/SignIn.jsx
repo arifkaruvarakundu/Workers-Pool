@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { setIsAuthenticated } from '../Redux/authslice';
 import { useDispatch, useSelector } from 'react-redux';
 import AxiosInstance from '../../axios_instance';
@@ -32,23 +31,31 @@ function SignIn() {
     axios
       .post('token/', formData)
       .then((response) => {
+        
         console.log('Sign-in successful', response.data);
 
         const userRole = response.data.role;
         const userProfileImage = response.data.profileImage;
 
         localStorage.setItem('user', JSON.stringify(response.data));
+        localStorage.setItem('username', response.data.username);
         localStorage.setItem('access', response.data.access);
         localStorage.setItem('refresh', response.data.refresh);
         localStorage.setItem('user_role', response.data.user_role);
         localStorage.setItem('user_id', response.data.id);
 
         dispatch(setIsAuthenticated());
+        
 
         navigateTo('/');
+        toast.success('You SignedIn successfully',{
+          autoClose: 1000,});
+
       })
       .catch((error) => {
+        
         console.error('Sign-in error', error);
+        toast.error('Invalid Credentials, Please Try Again',{autoClose:5000});
       });
   };
 
@@ -88,15 +95,18 @@ function SignIn() {
             </button>
           </div>
         </form>
+        
         <p className="text-center py-5">
           Don't have an account?{' '}
           <Link to="/signup" className="text-blue-500 hover:underline">
             Sign up here
           </Link>
         </p>
-        <ToastContainer />
+        
       </div>
+      <ToastContainer />
     </div>
+    
   );
 }
 

@@ -18,7 +18,7 @@ const NavigateToUsers = () =>{
   navigate('/users_workers')
     }
 const NavigateToBank = () =>{
-  navigate('/admin/Banking')
+  navigate('/')
     }
 const NavigateToBookings = () =>{
   navigate('/Bookings')
@@ -44,7 +44,7 @@ const NavigateToBookings = () =>{
         </div>
         <div onClick={NavigateToBank} className='text-center mt-2 w-16'>
         <img src={bankIcons} alt="" />
-        <p className='text-xs font-bold text-sky-900'>BANK</p>
+        <p className='text-xs font-bold text-sky-900'>HOME</p>
         </div>
 
         

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,8 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import {wserver} from '../../../server'
+import { ToastContainer, toast } from 'react-toastify';
+// import WebSocketService from './WebSocketService';
 
 function Navbar() {
   
@@ -22,9 +24,12 @@ function Navbar() {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [anchorE2, setAnchorE2] = React.useState(null);
+  const [notifications, setNotifications] = useState([]);
   const open = Boolean(anchorEl);
-
+  const user = JSON.parse(localStorage.getItem('user'));
+  const username = user && user.username;
   const open1 = Boolean(anchorE2);
+  const userId=localStorage.getItem('user_id')
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -41,8 +46,6 @@ function Navbar() {
   const handleClose1 = () => {
     setAnchorE2(null);
   };
-
-
 
   const handleLogout = async () => {
     try {
@@ -62,6 +65,8 @@ function Navbar() {
         localStorage.clear();
         dispatch(setNotAuthenticated());
         navigateTo('/');
+        toast.success('You logout successfully',{
+          autoClose: 5000,});
       }
     } catch (error) {   
       console.error('Logout error:', error);
@@ -75,22 +80,63 @@ function Navbar() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const socket = new WebSocket(`ws://${wserver}/ws/chat/${roomName}/`);
+   
 
-  //   socket.onmessage = (event) => {
-  //     const data = JSON.parse(event.data);
-  //     // Handle the received notification, e.g., show an alert
-  //     alert(data.message);
-  //   };
 
-  //   return () => {
-  //     socket.close();
-  //   };
-  // }, []);
-  
-  
+    useEffect(() => {
+      const connectToWebSocket = (userId) => {
+        if (role === 'user') {
+         
+          return null;
+        }
+    
+        const roomName = `${userId}`;
+        const client = new WebSocket(`ws://${wserver}/ws/notification/${roomName}/`);
+    
+        client.onopen = () => {
+          console.log('WebSocket connection established');
+        };
+    
+        client.onmessage = (message) => {
+          console.log('Received WebSocket message:', message);
+          const data = JSON.parse(message.data);
+          console.log(data);
+          setNotifications((prevNotifications) => [...prevNotifications, data.notification_data]);
+        };
+    
+        client.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
+    
+        return client;
+      };
+    
+    
+      if (role !== 'user') {
+        const client = connectToWebSocket(userId);
+    
+      
+        return () => {
+          if (client) {
+           
+            setTimeout(() => {
+              client.close();
+            },1000); 
+          }
+        };
+      }
+    
+     
+      return () => {};
+    }, [userId, role]);
+    
 
+
+
+
+
+   
+    
   return (
     <div className="bg-gray-800 p-4 w-full">
       <div className="container">
@@ -103,14 +149,18 @@ function Navbar() {
             <Link to="/services" className="text-white hover:text-gray-300">
               Services
             </Link>
-            <Link to="/about" className="text-white hover:text-gray-300">
+            <Link to="/About" className="text-white hover:text-gray-300">
               About
             </Link>
-            <Link to="/contact" className="text-white hover:text-gray-300">
+            <Link to="/Contacts" className="text-white hover:text-gray-300">
               Contact
             </Link>
           </div>
-          <div>
+            {isAuthenticated && role === 'user' ? (
+            // Render nothing for users
+            null
+          ) : (
+              <div>
       <Button
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -129,10 +179,16 @@ function Navbar() {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>Notifications</MenuItem>
-        
+        {console.log(notifications)}{notifications.map((notification) => (
+                <MenuItem key={notification.id} onClick={handleClose}>
+                  <Link to={"/worklog_worker"}>{notification}</Link>
+                  
+                </MenuItem>
+              ))}
       </Menu>
     </div>
+     )}
+    <div className='text-white'>{username}</div>
             {isAuthenticated && role ? (
         <div className="relative group">
           <Button
@@ -171,6 +227,7 @@ function Navbar() {
           SignIn / SignUp
         </Link>
       )}
+      <ToastContainer />
         </div>
       </div>
     </div>

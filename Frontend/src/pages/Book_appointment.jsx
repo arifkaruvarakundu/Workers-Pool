@@ -6,55 +6,92 @@ import { useParams } from 'react-router-dom';
 import BookingConfirmationModal from '../components/Bookingconfirmationmodal';
 import { useSelector } from 'react-redux';
 import { selectServiceId } from '../Redux/serviceSlice';
-import { selectStatus } from '../Redux/statusSlice';
+import { wserver } from './../../server';
+import { ToastContainer, toast } from 'react-toastify';
 
 const BookAppointment = () => {
   const { workerId } = useParams();
   const [short_description, setShort_description] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [busyDates, setBusyDates] = useState([]);
-
   const axios = AxiosInstance();
 
-  const status = useSelector(selectStatus);
   const serviceId = useSelector(selectServiceId);
   const user_id = localStorage.getItem('user_id');
+  const username= localStorage.getItem('username')
 
   useEffect(() => {
     console.log('Service ID:', serviceId);
     console.log('User ID:', user_id);
   }, [serviceId, user_id]);
 
-  const fetchBusyDates = async () => {
-    try {
-      const response = await axios.get(`get_busy_dates/${workerId}`);
-      setBusyDates(response.data.busyDates);
-    } catch (error) {
-      console.error('Error fetching busy dates:', error);
-    }
-  };
-
   useEffect(() => {
+    const fetchBusyDates = async () => {
+      try {
+        const response = await axios.get(`get_busy_dates/${workerId}`);
+        console.log(response.data);
+        setBusyDates(response.data.busyDates);
+        console.log(busyDates)
+      } catch (error) {
+        console.error('Error fetching busy dates:', error);
+      }
+    };
+
     fetchBusyDates();
   }, [workerId]);
+  
+  const isDateBusy = (date) => busyDates.some(busyDate => {
+    const formattedBusyDate = new Date(busyDate).toDateString();
+    const formattedDate = date.toDateString();
+    return formattedDate === formattedBusyDate;
+  });
 
-  const isDateBusy = (date) => {
-    const formattedDate = date.toISOString().split('T')[0];
-    return busyDates.includes(formattedDate);
+
+  const sendNotification = () => {
+    const roomName = `${workerId}`;
+    console.log(user_id);
+    console.log(workerId);
+    console.log(roomName);
+    const client = new WebSocket(`ws://${wserver}/ws/notification/${roomName}/`);
+  
+    client.onopen = () => {
+      console.log('WebSocket connection established');
+      
+      const message = {
+        type: 'notification.message',
+        text: username,
+      };
+  
+      client.send(JSON.stringify(message));
+      console.log(message);
+  
+      // Optionally, you can close the connection after sending the message
+      // client.close();
+    };
+  
+    client.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append('short_description', short_description);
-    const formattedDate = selectedDate.toISOString().split('T')[0];
-    formData.append('selectedDate', formattedDate);
+    console.log(selectedDate)
+    const formattedDate = selectedDate.toLocaleDateString('en-GB');
+    console.log(formattedDate);
+    const year = selectedDate.getFullYear();
+    const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = selectedDate.getDate().toString().padStart(2, '0');
+    const formattedDate1 = `${year}-${month}-${day}`;
+    console.log(formattedDate1);
+    formData.append('selectedDate', formattedDate1);
     formData.append('user_id', user_id);
     formData.append('serviceId', serviceId);
     formData.append('workerId', workerId);
-    formData.append('status', status);
+    // formData.append('status', status);
 
     try {
       const response = await axios.post('book_appointment', formData, {
@@ -62,44 +99,15 @@ const BookAppointment = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      // Handle the response as needed
       console.log(response.data);
       localStorage.setItem('appointment_id', response.data.appointment_id);
-
-      // Show the confirmation modal
-      setShowModal(true);
+      setShowModal(true); 
+      sendNotification();
+      toast.success('You booked successfully',{
+        autoClose: 5000,});
     } catch (error) {
       console.error('Error booking appointment', error);
-      // Handle errors if needed
     }
-  };
-
-  const CustomDatePickerInput = ({ value, onClick }) => {
-    const date = new Date(value);
-    const isDisabled = isDateBusy(date);
-
-    return (
-      <div>
-        <input
-          type="text"
-          value={value}
-          onClick={onClick}
-          className={`w-full p-2 border rounded-lg ${isDisabled ? 'bg-red-500 text-white' : ''}`}
-          disabled={isDisabled}
-        />
-        {isDisabled && <p className="text-red-500">This date is not available. Please choose another date.</p>}
-      </div>
-    );
-  };
-
-  const handleConfirmBooking = (paymentConfirmed) => {
-    if (paymentConfirmed) {
-      // Handle the payment confirmation and status update here
-      // You can make an API call to update the booking status to "Pending"
-      // For example, using axios.post('http://localhost:8000/update_status', { status: 'Pending', workerId, bookingId })
-    }
-    setShowModal(false);
   };
 
   return (
@@ -126,13 +134,18 @@ const BookAppointment = () => {
               Date
             </label>
             <DatePicker
-              id="date"
-              selected={selectedDate}
-              onChange={(date) => setSelectedDate(date)}
-              className="w-full p-2 border rounded-lg"
-              customInput={<CustomDatePickerInput />}
-              filterDate={(date) => !isDateBusy(date)}
-            />
+                id="date"
+                selected={selectedDate}
+                onChange={(date) => 
+                  setSelectedDate(date)
+                }
+                className="w-full p-2 border rounded-lg"
+                excludeDates={busyDates.map(busyDate => new Date(busyDate))}
+                minDate={new Date()}
+                autoComplete="off"
+                dateFormat="MM/dd/yyyy" 
+                filterDate={date => !isDateBusy(date)} 
+              />
           </div>
           <div className="flex justify-center py-3">
             <button
@@ -143,8 +156,9 @@ const BookAppointment = () => {
             </button>
           </div>
         </form>
+        <ToastContainer />
       </div>
-      <BookingConfirmationModal show={showModal} onClose={() => setShowModal(false)} onConfirm={handleConfirmBooking} />
+      <BookingConfirmationModal show={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 };

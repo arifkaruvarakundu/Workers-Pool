@@ -23,3 +23,14 @@ class UserDetails(models.Model):
 
     def __str__(self):
         return self.first_name
+    
+class UserWallet(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=3, default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True ,null=True)
+    credit = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    debit = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+    def __str__(self):
+        return f"{self.user.username}'s Wallet"
+

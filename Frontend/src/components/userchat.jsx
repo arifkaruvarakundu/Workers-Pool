@@ -25,7 +25,6 @@ function UserChat() {
 
   function isOpen(ws) { return ws.readyState === ws.OPEN }
 
-  
   const fetch_user_messages = async(userId,workerId)=>{
         try{
         const response = await axios.get(`${server}/chat/${userId}/${workerId}/`,
@@ -39,9 +38,7 @@ function UserChat() {
     }
 
 
-//   const userData = useSelector(selectUserData)
-//   const {accessToken} = userData
-//   const roomName = `${userId}_${workerId}`;
+
 const socketRef = useRef(null);
 const roomName = `${userId}_${workerId}`;
 

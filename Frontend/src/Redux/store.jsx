@@ -3,7 +3,7 @@ import authReducer from './authslice';
 import passwordModalReducer from './passwordModalSlice'
 import passwordReducer from './passwordSlice';
 import serviceReducer from './serviceSlice';
-import statusReducer from './statusSlice'
+// import bookingStatusReducer from './bookingStatusSlice';
 import rightDrawerSlice from './RightDrawerSlice';
 
 const store = configureStore({
@@ -12,7 +12,7 @@ const store = configureStore({
     passwordModal:passwordModalReducer,
     password: passwordReducer,
     service: serviceReducer,
-    status: statusReducer,
+    // bookingStatus: bookingStatusReducer,
     rightDrawer : rightDrawerSlice,
     
   },

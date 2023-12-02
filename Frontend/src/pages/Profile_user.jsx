@@ -11,6 +11,8 @@ const Profile_user = () => {
   const dispatch = useDispatch();
   const axios=AxiosInstance()
 
+  const workerId =localStorage.getItem('user_id')
+
   const handleOpenPasswordModal = () => {
     dispatch(openPasswordModal());
   };
@@ -45,6 +47,7 @@ const Profile_user = () => {
       }
     }
   };
+
   
   const userRole = JSON.parse(localStorage.getItem('user')).user_role;
 
@@ -85,14 +88,26 @@ const Profile_user = () => {
             Add/Edit Details & Address
           </button>
           </Link>
+          <Link to="/user_wallet">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
+            Wallet
+          </button>
+        </Link>
         </div>
         <div className="mt-4 text-center">
         {userRole === 'worker' ? (
+        <>
         <Link to="/worklog_worker">
           <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
             Show Work Log
           </button>
         </Link>
+        <Link to={`/workerchat/${workerId}`}>
+          <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">
+            Chat
+          </button>
+        </Link>
+      </>
       ) : (
         <Link to="/worklog_user">
           <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 mx-2">

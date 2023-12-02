@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import AxiosInstance from '../../axios_instance';
 
+
 function SignUp() {
   const [formData, setFormData] = useState({
     username: '',
@@ -14,7 +15,7 @@ function SignUp() {
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const axios=AxiosInstance()
+  const axios = AxiosInstance();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -147,19 +148,29 @@ function SignUp() {
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
-              Select Your Role
-            </label>
-            <select
-              className="w-full p-2 border rounded-lg"
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-            >
-              <option value="user">User</option>
-              <option value="worker">Worker</option>
-            </select>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Select Your Role</label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="user"
+                  checked={formData.role === 'user'}
+                  onChange={handleChange}
+                />
+                <span className="ml-2">User</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="worker"
+                  checked={formData.role === 'worker'}
+                  onChange={handleChange}
+                />
+                <span className="ml-2">Worker</span>
+              </label>
+            </div>
           </div>
           <div className="flex justify-center py-3">
             <button

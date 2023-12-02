@@ -117,7 +117,7 @@ function AddDetails() {
   
       console.log('User details added successfully');
       toast.success('Submitted successfully',{
-      autoClose: 50000,});
+      autoClose: 3000,});
       
       
     } catch (error) {

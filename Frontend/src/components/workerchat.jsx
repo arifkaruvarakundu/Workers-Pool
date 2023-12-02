@@ -63,29 +63,6 @@ function WorkerChat() {
 }, [userId]); // Include dependencies as needed
 
 
-// const socketRef = useRef(null);
-// const roomName = `${userId}_${workerId}`;
-
-// useEffect(() => {
-//     const newSocket = new WebSocket(`ws://${wserver}/ws/chat/${roomName}/`);
-//     socketRef.current = newSocket;
-//     setSocket(newSocket);
-
-//     const fetchData = async () => {
-//         const data = await fetch_user_messages(userId, workerId,accessToken);
-//         if (data) {
-//             setMessages(data);
-//             setLoading(false);
-//         }
-//     };
-//     fetchData();
-
-//     return () => {
-//         if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-//             socketRef.current.close();
-//         }
-//     };
-// }, [roomName]);
 
 
 
@@ -112,7 +89,18 @@ const onSelectUser = (workerId,userId,username) => {
     };
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, data]);
+      setMessages((prevMessages) => {
+        // Check if the message already exists in the state
+        const messageExists = prevMessages.some((message) => message.id === data.id);
+      
+        // If the message doesn't exist, add it to the state
+        if (!messageExists) {
+          return [...prevMessages, data];
+        }
+      
+        // If the message already exists, return the current state
+        return prevMessages;
+      });
     };
   }
 
@@ -123,23 +111,6 @@ const onSelectUser = (workerId,userId,username) => {
 
 
 
-  // useEffect(() => {
-  //   if (socket) {
-  //     socket.onopen = () => {
-  //       console.log('WebSocket connection opened');
-  //     };
-  //     socket.onmessage = (event) => {
-  //       const data = JSON.parse(event.data);
-  //       setMessages((prevMessages) => [...prevMessages, data]);
-  //     };
-  //   }
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   if (messagesContainerRef.current) {
-  //     messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-  //   }
-  // }, [messages]);
 
   const handleSendMessage = async () => {
     if (messageInput.trim() === '') return;

@@ -25,6 +25,7 @@ urlpatterns = [
     path('',include('users.urls')),
     path('',include('services.urls')),
     path('', include('chat.urls')),
+    path('', include('Admin.urls')),
     # path('',include('notifications.urls')),
     
 ]

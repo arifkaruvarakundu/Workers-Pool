@@ -15,21 +15,21 @@ function DashboardGraphs() {
     const axios=AxiosInstance()
     const [details, setDetails] = useState({
         total_users: 0,
-        total_drivers: 0,
+        total_workers: 0,
         total_balance: 0,
         total_revenue_week: 0,
         total_revenue_month: 0,
         total_revenue_year: 0,
-        pending_requests: 0,
-        completed_requests: 0,
-        started_requests: 0,
-        disposed_requests: 0,
+        pending_bookings: 0,
+        accepted_bookings: 0,
+        cancelled_bookings: 0,
+        rejected_bookings: 0,
         total_revenue_today: 0,
       });
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('admin/dashboard');
+        const response = await axios.get('dashboard/');
         setDetails(response.data);
         console.log(response.data);
         
@@ -42,10 +42,10 @@ function DashboardGraphs() {
 
 
   const Doughnutdata = {
-    labels: ['Users', 'Drivers'],
+    labels: ['Users', 'Workers'],
     datasets: [
       {
-        data: [details.total_users, details.total_drivers],
+        data: [details.total_users, details.total_workers],
         backgroundColor: ['#36A2EB', '#FFCE56'],
       },
     ],
@@ -71,10 +71,10 @@ function DashboardGraphs() {
   };
 
   const pieData = {
-    labels: ['Pending', 'Completed','Inprogress','Disposed'],
+    labels: ['Pending', 'Accepted','Cancelled','Rejected'],
     datasets: [
       {
-        data: [details.pending_requests, details.completed_requests,details.started_requests,details.disposed_requests],
+        data: [details.pending_bookings, details.accepted_bookings,details.cancelled_bookings,details.rejected_bookings],
         backgroundColor: ['#ff0000','#008000','#4933FF', '#353839'],
       },
     ],
@@ -107,7 +107,7 @@ function DashboardGraphs() {
   }
 
     const daily_revenue_data = [5000, 7000, 25000, 8000, 9000, 24000, 15000];
-    const daily_trip_data = [5, 6, 12, 4, 9, 16, 9];
+    const daily_Bookings_data = [5, 6, 12, 4, 9, 16, 9];
 
     const barChartData = {
         labels: dates,
@@ -144,13 +144,13 @@ function DashboardGraphs() {
       };
 
 
-      const barChartDataTrip = {
+      const barChartDataBooking = {
         labels: dates,
         datasets: [
           
           {
-            label: 'Daily Trips',
-            data: daily_trip_data,
+            label: 'Daily Bookings',
+            data: daily_Bookings_data,
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1,
@@ -158,7 +158,7 @@ function DashboardGraphs() {
         ],
       };
       
-      const barChartOptionsTrip = {
+      const barChartOptionsBooking = {
         maintainAspectRatio: false,
         scales: {
           x: [
@@ -194,7 +194,7 @@ function DashboardGraphs() {
     <Bar data={barChartData} options={barChartOptions} />
     </div>
     <div className="chart-container w-full md:mt-0 mt-4 ml-2 md:w-1/2" style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
-    <Bar data={barChartDataTrip} options={barChartOptionsTrip} />
+    <Bar data={barChartDataBooking} options={barChartOptionsBooking} />
     </div>
     </div>
     </div>

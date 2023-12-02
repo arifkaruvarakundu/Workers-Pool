@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'services',
     'crispy_forms',
     'chat',
+    'Admin',
 ]
 
 

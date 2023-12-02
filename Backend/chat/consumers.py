@@ -6,7 +6,6 @@ from datetime import datetime
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        print('Connected to room:************(((((((())))))))', self.room_name)
         self.room_group_name = f"chat_{self.room_name}"
 
         await self.channel_layer.group_add(
@@ -58,7 +57,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message=event['message_content']
         sender=event['sender']
         receiver=event['receiver']
-        
         timestamp = datetime.now().isoformat()
         await self.send(text_data=json.dumps({
             'message_content': message,
@@ -69,51 +67,50 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
 
 
+import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = f"notification_{self.room_name}"
+        
+        # Extract the worker_id from the room_name or any other appropriate source
+        self.worker_id = self.room_name.split('_')[0]
+        self.room_group_name = f"notification_{self.worker_id}"
 
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-        
         print('room created',self.room_group_name)
         await self.accept()
 
     async def disconnect(self, close_code):
-        
+        print(f"WebSocket disconnected from room {self.room_name} with code {close_code}")
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-       
 
-        print('room disconnected',self.room_group_name)
-    
-    async def receive(self,text_data):
-        
+    async def receive(self, text_data):
         try:
             text_data_json = json.loads(text_data)
             username = text_data_json.get('text')
-            print('yyy')
+            
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'notification.message',
-                    'notification_data':  f"Your request for {username} has approved",
+                    'notification_data': f"you have a Booking request from {username}",
                 }
             )
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({'error': 'Invalid JSON format'}))
 
-
     async def notification_message(self, event):
+        
         notification_data = event['notification_data']
-
+        
         await self.send(text_data=json.dumps({
             'notification_data': notification_data,
         }))
-
