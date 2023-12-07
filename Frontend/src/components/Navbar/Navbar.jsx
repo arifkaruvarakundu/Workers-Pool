@@ -57,7 +57,7 @@ function Navbar() {
         return;
       }
   
-      const response = await axios.post('http://localhost:8000/logout/', {
+      const response = await axios.post('https://workerspool.online/logout/', {
         refresh_token: refresh_token, 
       });
   

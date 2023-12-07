@@ -1,6 +1,6 @@
 import React from 'react'
 import AdminDB from './../../../../../assets/AdminDashboard.png'
-import Rpool from './../../../../../assets/pending.png'
+import Rpool from './../../../../../assets/Pending.png'
 import workerProfile from './../../../../../assets/workerProfile.png'
 import profileimage from './../../../../../assets/img.png'
 import bankIcons from './../../../../../assets/Bank.png'

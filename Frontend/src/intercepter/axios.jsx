@@ -10,7 +10,7 @@ axios.interceptors.response.use(
       console.log(localStorage.getItem("refresh_token"));
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/token/refresh/",
+          "https://workerspool.online/token/refresh/",
           {
             refresh: localStorage.getItem("refresh_token"),
           },
