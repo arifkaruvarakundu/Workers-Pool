@@ -12,6 +12,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import {wserver} from '../../../server'
 import { ToastContainer, toast } from 'react-toastify';
+import AxiosInstance from './../../../axios_instance';
 // import WebSocketService from './WebSocketService';
 
 function Navbar() {
@@ -19,7 +20,7 @@ function Navbar() {
   const [role,setRole]=useState(null)
   const navigateTo = useNavigate();
   const dispatch=useDispatch();
-  
+  const axios = AxiosInstance()
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -57,7 +58,7 @@ function Navbar() {
         return;
       }
   
-      const response = await axios.post('https://workerspool.online/logout/', {
+      const response = await axios.post('logout/', {
         refresh_token: refresh_token, 
       });
   

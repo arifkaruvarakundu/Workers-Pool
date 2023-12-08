@@ -47,6 +47,7 @@ function SignUp() {
       .then((response) => {
         console.log('Registration successful:', response.data);
         const email = formData.email;
+        localStorage.setItem('username',formData.username)
         closePleaseWaitAlert();
         showSuccessAlert(email);
         navigate('/OTPVerification');

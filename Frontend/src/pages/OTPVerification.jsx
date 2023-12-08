@@ -8,10 +8,9 @@ import Loader from '../components/Loader';
 function OTPVerification() {
   const [otp, setOTP] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
   const axios=AxiosInstance()
-
+  const username = localStorage.getItem('username') 
   const handleChange = (e) => {
     const { value } = e.target;
     setOTP(value);
@@ -25,7 +24,7 @@ function OTPVerification() {
     showPleaseWaitAlert();
 
     axios
-      .post('verify_registration_otp/', { otp }, {
+      .post('verify_registration_otp/', { otp,username }, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       })
