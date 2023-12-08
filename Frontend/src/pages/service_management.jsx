@@ -116,7 +116,11 @@ function ServiceManagement() {
                 <li key={service.id} className="flex justify-between items-center border-b py-2">
                   <div className="flex items-center">
                     <img
-                      src={`${service.service_img}`}
+                      // src={`${service.service_img}`}
+                      src={service.service_img.replace(
+                        'http://0.0.0.0:9090',
+                        'https://workerspool.online'
+                      )}
                       alt="Service"
                       className="w-12 h-12 rounded-full mr-4"
                     />

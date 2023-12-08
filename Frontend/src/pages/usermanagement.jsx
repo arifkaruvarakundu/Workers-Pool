@@ -62,7 +62,15 @@ function UserManagement() {
             <tr key={user.id}>
               <td className="py-2 px-4">{user.id}</td>
               <td className="py-2 px-4">{user.username}</td>
-              <td className="py-2 px-4"><img className='w-16 h-16 object-cover' src={user.profile_img} alt="" /></td>
+              <td className="py-2 px-4">
+                <img className='w-16 h-16 object-cover' 
+                // src={user.profile_img}
+                src={user.profile_img.replace(
+                  'http://0.0.0.0:9090',
+                  'https://workerspool.online'
+                )} 
+                alt="profile_img" />
+              </td>
               <td className="py-2 px-4">{user.role}</td>
               <td className="py-2 px-4 text-center">
                 <button

@@ -92,7 +92,11 @@ function ServiceWorkers() {
                   <div className="flex items-center">
                     {worker.user_id.profile_img && (
                       <img
-                        src={`http://127.0.0.1:8000${worker.user_id.profile_img}`}
+                        // src={`http://127.0.0.1:8000${worker.user_id.profile_img}`}
+                        src={worker.user_id.profile_img.replace(
+                          'http://0.0.0.0:9090',
+                          'https://workerspool.online'
+                        )}
                         alt={`${worker.first_name} ${worker.last_name}`}
                         className="w-12 h-12 rounded-full mr-4"
                       />
