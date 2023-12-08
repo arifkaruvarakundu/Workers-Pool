@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-6y19++wn@&nh^hh95h@hs^9j+t0gm@@pu#*48-9ngu4a0^$jy0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['workerspool.online','54.144.253.194','0.0.0.0','localhost','127.0.0.1']
 
 
 # settings.py
@@ -144,6 +144,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -157,7 +158,6 @@ SIMPLE_JWT = {
      'ROTATE_REFRESH_TOKENS': True,
      'BLACKLIST_AFTER_ROTATION': True
 }
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -214,14 +214,18 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5173",
-     "http://localhost:8000", 
-     
-    
+      "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "https://workerspool.vercel.app",
+    "https://workerspool.online",
+    "http://54.144.253.194"   
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:5173',
-    "http://localhost:8000", ]
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "https://workerspool.vercel.app",
+    "https://workerspool.online",
+     "http://54.144.253.194" ]
     
 
 MEDIA_URL = '/media/'
@@ -233,7 +237,7 @@ STRIPE_PUBLIC_KEY = "pk_test_51OA4b6SIwD41cwvpknynEl2HlEb9ILiuu7uvMfaBd2SE64R2tp
 STRIPE_SECRET_KEY = "sk_test_51OA4b6SIwD41cwvpyz7Ka39uUb8Dk75DOlOtSbUXIUYyzo1Tq7tJYNXwNLVqhM6pizCWCwkXFNkzdM7UH7TTjm1q00w6hV0v2g"
 
 
-BASE_URL = 'http://127.0.0.1:5173'
+BASE_URL = 'https://workerspool.online'
 
 
 
@@ -245,20 +249,8 @@ CHANNEL_LAYERS = {
     },
 }
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [REDIS_URL],
-#         },
-#     },
-# }
 
 
-CHANNELS_ALLOWED_HOSTS = ['http://127.0.0.1:5173']
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
+CHANNELS_ALLOWED_HOSTS = ['https://workerspool.online/','http://54.144.253.194/','http://127.0.0.1:5173/']
 
-]

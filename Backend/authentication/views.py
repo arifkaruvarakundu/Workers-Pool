@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserSerializers
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 import random
@@ -28,36 +29,25 @@ class RegisterView(APIView):
         if User.objects.filter(email=request.data['email']).exists():
             return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-        
-        role = request.data.get('role', 'user')
-
-        
-        registration_data = {
-            'username': request.data['username'],
-            'email': request.data['email'],
-            'password': request.data['password'],
-            'role': role,
-        }
+            
 
        
-        registration_data['is_active'] = False
+        request.data['is_active'] = False
 
         
-        serializer = UserSerializers(data=registration_data)
+        serializer = UserSerializers(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data.get('username')
         email = serializer.validated_data.get('email')
 
         if serializer.is_valid():
             user = serializer.save()
-            request.session['registration_data'] = serializer.validated_data
-
-            
             otp = get_random_string(length=6, allowed_chars='1234567890')
-            expiry = datetime.now() + timedelta(minutes=5)  
-            request.session['otp'] = otp
-            print(request.session['otp'])
-            request.session['otp_expiry'] = expiry.strftime('%Y-%m-%d %H:%M:%S')
+            user.otp = otp
+            print("otp",otp)
+            user.otp_created_at = timezone.now()
+            user.save()
+            current_datetime = datetime.now()
+            expiry = current_datetime  + timedelta(minutes=5)  
             email = user.email
 
             
@@ -77,41 +67,29 @@ class RegisterView(APIView):
 
 class UserRegOTPVerificationView(APIView):
     def post(self, request):
+        username = request.data.get('username')
         
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            
+            return Response({"detail": "User not found."}, status=status.HTTP_400_BAD_REQUEST)
+
         entered_otp = request.data.get('otp')
+        stored_otp = user.otp
+        otp_validity = timedelta(minutes=5)
         
-
-       
-        stored_otp = request.session.get('otp')
-        
-
-        if entered_otp == stored_otp:
+        if int(entered_otp) == stored_otp and timezone.now() - user.otp_created_at <= otp_validity:
             
-            registration_data = request.session.get('registration_data')
-            email = registration_data['email']
-            password = registration_data['password']
-            username = registration_data['username']
-
             
-
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
+            user.otp = None
+            user.is_verified = True
             user.is_active = True
             user.save()
-
-            
-            del request.session['otp']
-            del request.session['registration_data']
-
-            return Response({'message': 'Registration successful'})
+            return Response({"detail": "OTP verified successfully!"})
         else:
-            
-            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
-
-
+            print("Inside else block")
+            return Response({"detail": "Invalid or expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):

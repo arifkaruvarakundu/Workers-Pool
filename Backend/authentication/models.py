@@ -15,6 +15,8 @@ class User(AbstractUser):
     kyc_verified = models.BooleanField(default=False)
     pcc_verified = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
+    otp = models.IntegerField (blank=True, null=True)
+    otp_created_at=models.DateTimeField(blank=True ,null=True)
 
     # Add a 'role' field to define the user's role
     ROLE_CHOICES = (
