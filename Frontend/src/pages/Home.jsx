@@ -48,7 +48,11 @@ function Home() {
               className="rounded-lg p-4 shadow-md border border-gray-200 hover:shadow-lg hover:bg-gray-500 flex flex-col items-center justify-center"
             >
               <img
-                src={service.service_img}
+                // src={service.service_img}
+                src={service.service_img.replace(
+                  'http://0.0.0.0:9090',
+                  'https://workerspool.online'
+                )}
                 alt={service.Title}
                 className="w-32 h-32 object-cover rounded-full mb-4"
               />
