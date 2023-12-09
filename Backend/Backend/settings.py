@@ -238,7 +238,7 @@ STRIPE_SECRET_KEY = "sk_test_51OA4b6SIwD41cwvpyz7Ka39uUb8Dk75DOlOtSbUXIUYyzo1Tq7
 
 
 BASE_URL = 'https://workerspool.online'
-
+SITE_URL = 'https://workers-pool.vercel.app'
 
 
 ASGI_APPLICATION = 'Backend.asgi.application'

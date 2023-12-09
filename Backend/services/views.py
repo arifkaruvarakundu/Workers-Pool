@@ -221,8 +221,8 @@ class StripeCheckoutView(APIView):
                                     },
                 
                 
-                 success_url=settings.BASE_URL + '/?success=true',
-                 cancel_url=settings.BASE_URL + '/?canceled=true'
+                 success_url=settings.SITE_URL + '/?success=true',
+                 cancel_url=settings.SITE_URL + '/?canceled=true'
             )
             return Response({'url': checkout_session.url, 'session_id': checkout_session.id}, status=status.HTTP_200_OK)
 
