@@ -41,7 +41,11 @@ function Banner_workers() {
     <div className="relative bg-gray-900">
       {/* Use the 'service_img' of the selected service as the image source */}
       <img
-        src={selectedService.service_img}
+        // src={selectedService.service_img}
+        src={selectedService.service_img?.replace(
+          'http://0.0.0.0:9090',
+          'https://workerspool.online'
+        )}
         alt="Service Image"
         className="w-full h-64 object-cover"
       />

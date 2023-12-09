@@ -65,7 +65,7 @@ function UserManagement() {
               <td className="py-2 px-4">
                 <img className='w-16 h-16 object-cover' 
                 // src={user.profile_img}
-                src={user.profile_img.replace(
+                src={user.profile_img?.replace(
                   'http://0.0.0.0:9090',
                   'https://workerspool.online'
                 )} 
