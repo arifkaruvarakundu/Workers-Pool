@@ -43,7 +43,7 @@ const socketRef = useRef(null);
 const roomName = `${userId}_${workerId}`;
 
 useEffect(() => {
-    const newSocket = new WebSocket(`ws://${wserver}/ws/chat/${roomName}/`);
+    const newSocket = new WebSocket(`wss://${wserver}/wss/chat/${roomName}/`);
     socketRef.current = newSocket;
     setSocket(newSocket);
 
