@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-6y19++wn@&nh^hh95h@hs^9j+t0gm@@pu#*48-9ngu4a0^$jy0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['workerspool.online','54.144.253.194','0.0.0.0','localhost','127.0.0.1']
+ALLOWED_HOSTS = ['workerspool.online','3.85.223.5','0.0.0.0','localhost','127.0.0.1']
 
 
 # settings.py
@@ -218,14 +218,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "https://workerspool.vercel.app",
     "https://workerspool.online",
-    "http://54.144.253.194"   
+    "http://3.85.223.5"   
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:8000",
     "https://workerspool.vercel.app",
     "https://workerspool.online",
-     "http://54.144.253.194" ]
+     "http://3.85.223.5" ]
     
 
 MEDIA_URL = '/media/'
@@ -252,5 +252,5 @@ CHANNEL_LAYERS = {
 
 
 
-CHANNELS_ALLOWED_HOSTS = ['https://workerspool.online/','http://54.144.253.194/','http://127.0.0.1:5173/']
+CHANNELS_ALLOWED_HOSTS = ['https://workerspool.online/','http://3.85.223.5/','http://127.0.0.1:5173/']
 
