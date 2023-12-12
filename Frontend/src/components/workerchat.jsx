@@ -80,7 +80,7 @@ const onSelectUser = (workerId,userId,username) => {
   fetchData();
 
   const roomName = `${workerId}_${userId}`;
-  const newSocket = new WebSocket(`ws://${wserver}/wss/chat/${roomName}/`);
+  const newSocket = new WebSocket(`wss://${wserver}/wss/chat/${roomName}/`);
   setSocket(newSocket);
 
   if (socket) {
