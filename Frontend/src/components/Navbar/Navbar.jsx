@@ -92,7 +92,7 @@ function Navbar() {
         }
     
         const roomName = `${userId}`;
-        const client = new WebSocket(`wss://${wserver}/wss/notification/${roomName}/`);
+        const client = new WebSocket(`ws://${wserver}/wss/notification/${roomName}/`);
     
         client.onopen = () => {
           console.log('WebSocket connection established');
