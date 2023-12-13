@@ -76,7 +76,7 @@ function AddDetails() {
   };
   
 
-  const handleSubmit =  () => {
+  const handleSubmit = async () => {
     const dataToSend = new FormData();
     dataToSend.append('user_id', user_id);
     dataToSend.append('first_name', formData.first_name);
@@ -113,7 +113,7 @@ function AddDetails() {
     };
   
     try {
-      const response =  axios.post('add_details/', dataToSend, config);
+      const response = await axios.post('add_details/', dataToSend, config);
   
       console.log('User details added successfully');
       toast.success('Submitted successfully',{
