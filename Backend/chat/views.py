@@ -36,7 +36,7 @@ class UserWorkerChatView(APIView):
             user=User.objects.get(id=user_id)
             worker=User.objects.get(id=worker_id)
         except User.DoesNotExist:
-            return Response({"error":"invalid user or doctor"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"invalid user or woker"}, status=status.HTTP_400_BAD_REQUEST)
         # Fetch all messages related to the user and doctor
         messages=Message.objects.filter(
             (models.Q(sender=user)&models.Q(receiver=worker)) |
