@@ -2,7 +2,6 @@ import React, { useEffect, useState,useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import img from '../../assets/img.png'
 import { useDispatch,useSelector } from 'react-redux';
 import { setNotAuthenticated } from '../../Redux/authslice';

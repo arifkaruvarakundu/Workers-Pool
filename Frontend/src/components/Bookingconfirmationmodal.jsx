@@ -43,7 +43,7 @@ const BookingConfirmationModal = ({ show, onClose, onConfirm }) => {
       
       if (userWallet && userWallet.balance >= 50) {
         
-        const updateWalletResponse = await axios.put(`transfer_credit_back/${userId}/`, {
+        const updateWalletResponse = await axios.patch(`transfer_credit_back/${userId}/`, {
           amount: 50,
         });
   
