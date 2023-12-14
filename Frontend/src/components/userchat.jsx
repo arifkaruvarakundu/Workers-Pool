@@ -12,6 +12,8 @@ function UserChat() {
   const [socket, setSocket] = useState(null);
   const messagesContainerRef = useRef(null);
   const [workerName, setWorkerName] = useState('');
+  const [CurrentTime,setCurrentTime]=useState(false)
+
   // const [workerImage, setWorkerImage] = useState(null);
 
   const axios=AxiosInstance()
@@ -27,7 +29,7 @@ function UserChat() {
 
   const fetch_user_messages = async(userId,workerId)=>{
         try{
-        const response = await axios.get(`${server}/chat/${userId}/${workerId}/`,
+        const response = await axios.get(`chat/${userId}/${workerId}/`,
         // {headers}
         );
         return response.data
@@ -52,6 +54,7 @@ useEffect(() => {
         if (data) {
             setMessages(data);
             setLoading(false);
+            setCurrentTime((prevValue) => !prevValue);
         }
     };
     fetchData();
@@ -61,7 +64,7 @@ useEffect(() => {
             socketRef.current.close();
         }
     };
-}, [roomName]);
+}, [roomName,CurrentTime]);
 
 
   // useEffect(() => {
@@ -113,7 +116,7 @@ useEffect(() => {
 
 const createMessage = async(formData)=>{
     try{
-      const response = await axios.post(`${server}/create/`,formData,{
+      const response = await axios.post(`create/`,formData,{
         // headers
       })
       return response.data
@@ -133,6 +136,7 @@ const handleSendMessage = async () => {
         };
 
         console.log(newMessage);
+        setCurrentTime((prevValue) => !prevValue);
         const response = await createMessage(newMessage);
         if (response) {
             if (socketRef.current) {

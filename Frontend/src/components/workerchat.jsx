@@ -7,6 +7,7 @@ import img from '../assets/img.png'
 function WorkerChat() {
   // const { userId } = useParams();
   const [messages, setMessages] = useState([]);
+  const [CurrentTime,setCurrentTime]=useState(false)
   const [loading, setLoading] = useState(true);
   const [messageInput, setMessageInput] = useState('');
   const [socket, setSocket] = useState(null);
@@ -22,7 +23,7 @@ function WorkerChat() {
 
   const fetch_user_messages = async(userId,workerId)=>{
             try{
-            const response = await axios.get(`${server}/chat/${userId}/${workerId}/`,
+            const response = await axios.get(`chat/${userId}/${workerId}/`,
             // {headers}
             );
             return response.data
@@ -35,7 +36,7 @@ function WorkerChat() {
 
         const createMessage = async(formData)=>{
             try{
-              const response = await axios.post(`${server}/create/`,formData,{
+              const response = await axios.post(`create/`,formData,{
                 // headers
               })
               return response.data
@@ -50,7 +51,7 @@ function WorkerChat() {
   useEffect(() => {
     // Make a GET request to fetch messages
     axios
-        .get(`/worker-chat/${userId}/`) // Replace user_id with the actual user ID
+        .get(`worker-chat/${userId}/`) // Replace user_id with the actual user ID
         .then((response) => {
             setChattedUsers(response.data);
             console.log(response.data);
@@ -123,6 +124,7 @@ const onSelectUser = (workerId,userId,username) => {
         
       };
       console.log(newMessage)
+      setCurrentTime((prevValue) => !prevValue);
       const response = await createMessage(newMessage);
       if (response) {
         if (socket) {
