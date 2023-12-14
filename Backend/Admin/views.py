@@ -17,24 +17,32 @@ class DashBoardView(APIView):
         total_debits = Decimal(0.00)
         wallet_entries = AdminWallet.objects.all()
 
-        print("&&&&&&&&&&&&&&&&&&(((((((((((())))))))))))",wallet_entries)
+        print("wallet entries",wallet_entries)
 
         today = timezone.now()
+        print("today",today)
         start_of_week = today - timezone.timedelta(days=today.weekday())
+        print("start_of_week",start_of_week)
         start_of_month = today.replace(day=1)
+        print("start of the month",start_of_month)
         start_of_year = today.replace(month=1, day=1)
+        print("start of the year",start_of_year)
 
         for entry in wallet_entries:
             total_credits += entry.credit
             total_debits += entry.debit
 
         total_balance = total_credits - total_debits
+        print("total balance",total_balance)
 
 
 
         week_entries = wallet_entries.filter(created_at__gte=start_of_week)
+        print("week entries",week_entries)
         month_entries = wallet_entries.filter(created_at__gte=start_of_month)
+        print("month entries",month_entries)
         year_entries = wallet_entries.filter(created_at__gte=start_of_year)
+        print("year entries",year_entries)
 
         total_revenue_week = sum(entry.credit for entry in week_entries) - sum(entry.debit for entry in week_entries)
         total_revenue_month = sum(entry.credit for entry in month_entries) - sum(entry.debit for entry in month_entries)
@@ -46,6 +54,7 @@ class DashBoardView(APIView):
         Rejected_Bookings = Appointment.objects.filter(status='Rejected').count()
 
         today_entries = wallet_entries.filter(created_at__date=today)
+        print("today entries",today_entries)
         total_revenue_today = sum(entry.credit - entry.debit for entry in today_entries)
         seven_days_ago = today - timezone.timedelta(days=7)
         daily_Bookings_data = []
@@ -62,7 +71,7 @@ class DashBoardView(APIView):
                 total_credit=Sum('credit'),
                 total_debit=Sum('debit')
         )
-        print("******************************",revenue_on_day)
+        print("revenue on day",revenue_on_day)
         if revenue_on_day['total_credit'] is not None and revenue_on_day['total_debit'] is not None:
             revenue_on_day = revenue_on_day['total_credit'] - revenue_on_day['total_debit']
         else:

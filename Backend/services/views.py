@@ -307,7 +307,7 @@ class MyWebhookView(View):
                 payment_status=payment_status,
                 payment_id=payment_id
                 )
-            
+            print("payment object created####$$$$$$^^^^^^^^^^^",payment)
             amount_to_add = 50 * Payment.objects.count()
             admin_user = User.objects.get(role='admin')
             admin_wallet = AdminWallet.objects.get(user=admin_user)

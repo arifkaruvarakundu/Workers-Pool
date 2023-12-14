@@ -216,9 +216,11 @@ class UserWalletDetailsView(View):
 
 class TransferCreditBackView(APIView):
     @csrf_exempt
-    def put(self, request, user_id):
+    def patch(self, request, user_id):
         try:
+            print("request.data$$$",request.data)
             admin_id = 1
+            print("user_id &&&&&&&",user_id)
             user_wallet = get_object_or_404(UserWallet, user_id=user_id)
             admin_wallet = get_object_or_404(AdminWallet, user_id=admin_id)
             transfer_amount = 50
