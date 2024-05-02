@@ -14,14 +14,20 @@ Technologies and Tools Used:
 
 ● Python: I utilized python for back-end development, ensuring better type safety and
 better experience.
+
 ● Django: I used python framework django for making backend APIs.
+
 ● Postgresql: As the primary database, I utilizes database within the SQL ecosystem.
+
 ● React with Redux: The front-end development is based on React, I integrated Redux for
 efficient state management.
+
 ● NGINX: Serving as a reverse proxy and API gateway, it interconnects my distributed
 services. This ensures routing, balanced workloads, and functions as a rate limiter to
 efficiently manage API requests.
+
 ● Websocket: I am utilizing the powerful capabilities of Websocket to facilitate seamless
 real-time communication between users.
+
 ● ALSO USED: Redux-toolkit, Tailwind CSS, Vercel, AWS EC2 ,Route 53,Stripe payment
 gateway.
