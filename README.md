@@ -1,9 +1,11 @@
 ● A scalable booking platform using the python django as backend - react js as frontend
 stack and the project ensures maintainable and loosely coupled code.
+
 ● Unleash the power of collaboration with Workers-Pool, an engaging platform designed
 for two dynamic roles: Users and Workers. Users can seamlessly embark on their work
 journey by booking skilled Workers, while Workers themselves can join to showcase
 their expertise and create personalized services.
+
 ● This multi-faceted platform not only facilitates bookings but also empowers Workers to
 shape their professional journey. I orchestrated my project's backend across AWS EC2
 instance. I deployed frontend on Vercel with a DNS purchased from Hostinger
